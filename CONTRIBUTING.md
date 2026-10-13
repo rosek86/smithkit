@@ -21,24 +21,25 @@ npm run dev
 The development server opens the demo. Node.js 24 is a development toolchain
 requirement, not a browser requirement for applications using the library.
 
-| Command                 | Purpose                                                                                    |
-| ----------------------- | ------------------------------------------------------------------------------------------ |
-| `npm run lint`          | Check JavaScript and TypeScript with ESLint; warnings fail the check.                      |
-| `npm run lint:fix`      | Apply automatic ESLint fixes.                                                              |
-| `npm run format`        | Format source, configuration, demo assets, and documentation with Prettier.                |
-| `npm run format:check`  | Check formatting without changing files.                                                   |
-| `npm run typecheck`     | Check types and Angular strict templates with TypeScript 7 and Angular/TypeScript 6.       |
-| `npm run build`         | Build ESM modules and TypeScript declarations in `dist/lib/`.                              |
-| `npm run build:demo`    | Build the demo and integration gallery in `dist/demo/`.                                    |
-| `npm run build:docs`    | Rebuild library declarations and generate the searchable API site in `public/api/`.        |
-| `npm run preview`       | Preview the built demo.                                                                    |
-| `npm test`              | Run calculation, parser, scale, and release verification tests.                            |
-| `npm run api:check`     | Rebuild declarations and fail if the tracked public API report differs.                    |
-| `npm run api:update`    | Rebuild declarations and explicitly update the public API report for review.               |
-| `npm run check`         | Check formatting, lint, types, tests, the API report, and library/demo builds.             |
-| `npm run test:e2e`      | Run browser tests against the built demo under `/smithkit/`.                               |
-| `npm run check:package` | Pack and install the library in an isolated consumer; verify ESM imports and declarations. |
-| `npm pack`              | Rebuild the library and create an installable `.tgz` archive.                              |
+| Command                        | Purpose                                                                                               |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `npm run lint`                 | Check JavaScript and TypeScript with ESLint; warnings fail the check.                                 |
+| `npm run lint:fix`             | Apply automatic ESLint fixes.                                                                         |
+| `npm run format`               | Format source, configuration, demo assets, and documentation with Prettier.                           |
+| `npm run format:check`         | Check formatting without changing files.                                                              |
+| `npm run typecheck`            | Check types and Angular strict templates with TypeScript 7 and Angular/TypeScript 6.                  |
+| `npm run build`                | Build ESM modules and TypeScript declarations in `dist/lib/`.                                         |
+| `npm run build:demo`           | Build the demo and integration gallery in `dist/demo/`.                                               |
+| `npm run build:docs`           | Rebuild library declarations and generate the searchable API site in `public/api/`.                   |
+| `npm run preview`              | Preview the built demo.                                                                               |
+| `npm test`                     | Run calculation, parser, scale, and release verification tests.                                       |
+| `npm run api:check`            | Rebuild declarations and fail if the tracked public API report differs.                               |
+| `npm run api:update`           | Rebuild declarations and explicitly update the public API report for review.                          |
+| `npm run check`                | Check formatting, lint, types, tests, the API report, and library/demo builds.                        |
+| `npm run test:e2e`             | Run browser tests against the built demo under `/smithkit/`.                                          |
+| `npm run check:package`        | Pack and install the library in an isolated consumer; verify ESM imports and declarations.            |
+| `npm run check:browser -- ...` | Run a native-browser WebDriver smoke check; requires a local vendor driver and exact browser version. |
+| `npm pack`                     | Rebuild the library and create an installable `.tgz` archive.                                         |
 
 For browser tests, run `npm run build:demo` and `npx playwright install chromium`
 first. To use an installed Chrome instead, run
@@ -46,6 +47,9 @@ first. To use an installed Chrome instead, run
 `npm run test:e2e:webkit` after `npx playwright install webkit`. Run Firefox with `npm run test:e2e:firefox` after `npx playwright install firefox`.
 CI runs Chromium, Firefox, and WebKit. Native pointer assertions allow device-pixel rounding;
 SVG text bounds use DOM geometry so text anchors are included.
+
+Native Safari and historical browser verification use `check:browser`, separately
+from Playwright. See [the evidence matrix and driver setup](docs/compatibility.md#native-browser-verification).
 
 Framework packages are development dependencies used by the gallery only.
 Angular's compiler uses the TypeScript 6 API alias; the library build continues to
