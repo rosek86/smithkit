@@ -3,6 +3,8 @@
 **`smithkit`** is a framework-independent JavaScript and TypeScript library for
 interactive SVG Smith charts, RF calculations, and S11 measurement exploration.
 
+[![Smithkit in dark mode: a Smith chart with one orange trace, a marker, and active cursor readings on the parameter scales.](https://raw.githubusercontent.com/rosek86/smithkit/main/docs/images/smithkit-preview.png)](https://rosek86.github.io/smithkit/)
+
 [Try the interactive demo](https://rosek86.github.io/smithkit/) or browse the
 [integration examples](https://rosek86.github.io/smithkit/examples/index.html):
 static charts, marker controls, a 100,000-sample trace, themes, report exports, and lifecycle cleanup.
