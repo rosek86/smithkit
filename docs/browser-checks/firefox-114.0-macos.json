@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-10-13T05:44:25.196Z",
+  "commit": "b5b12a93d31a597ca9c596a16f43797554e479f3",
+  "workingTreeDirty": true,
+  "packageVersion": "0.5.0",
+  "bundleSha256": "4eda6706c959eb1755fac78e5dfa8250a0e08eb186c23c255244cba9f73c7209",
+  "expectedBrowser": "firefox",
+  "expectedVersion": "114.0",
+  "headless": true,
+  "status": "passed",
+  "checks": [
+    "Touchstone packed import",
+    "SVG paths, labels, text measurement and radial scales",
+    "Data and configuration updates preserve SVG identity",
+    "ResizeObserver and constant marker hit area",
+    "Synthetic wheel event updates zoom",
+    "SVG and PNG export with scales and legends",
+    "WebDriver keyboard navigation, focus, ARIA value and marker event",
+    "Destroy and repeated mount/unmount"
+  ],
+  "browser": "firefox",
+  "browserVersion": "114.0",
+  "platform": "mac",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0"
+}
