@@ -8,22 +8,6 @@ interactive SVG Smith charts, RF calculations, and S11 measurement exploration.
 static charts, marker controls, a 100,000-sample trace, themes, report exports, and lifecycle cleanup.
 Each example includes its TypeScript source.
 
-Upgrading from 0.3.x? Version 0.4.0 introduces grouped constructor options and
-`setOptions()`, static chart defaults, and explicit marker creation. See the
-[0.4 migration guide](https://github.com/rosek86/smithkit/blob/v0.4.0/docs/migration-0.4.md).
-
-Upgrading from 0.2.x? Version 0.3.0 replaces `GridLayer.setMinorVisible()` with
-`setDetail('basic' | 'standard' | 'detailed')`. Replace `false` with `'standard'`
-and `true` with `'detailed'`; `'basic'` shows only the principal circles.
-
-Upgrading from 0.1.x? Version 0.2.0 groups calculation, parsing, formatting, and
-comparison functions into classes. See the [migration guide](https://github.com/rosek86/smithkit/blob/v0.2.0/docs/migration-0.2.md)
-for the changed imports.
-
-The [API review and compatibility policy](https://github.com/rosek86/smithkit/blob/main/docs/api-review.md)
-define the public contract and the compatibility scope intended for 1.0. During
-0.x development, breaking changes are documented in minor releases.
-
 ## Features
 
 - Labeled resistance, reactance, conductance, and susceptance grids.
@@ -53,6 +37,9 @@ No library stylesheet is required. To build the library from source, see
 For a complete application using the installed package, see the
 [standalone integration example](https://github.com/rosek86/smithkit/tree/main/examples/basic).
 It demonstrates mounting, replacing samples, event subscriptions, resizing, and cleanup.
+
+For upgrades from earlier versions, see the
+[migration guide](https://github.com/rosek86/smithkit/blob/main/docs/migrations.md).
 
 ## Quick start
 
