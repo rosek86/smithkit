@@ -7,7 +7,7 @@ test('demo links to a gallery with runnable examples and executable source', asy
   await page.goto('');
   await page.getByRole('link', { name: 'Examples', exact: true }).click();
   await expect(page).toHaveURL(/\/smithkit\/examples\/index.html$/);
-  await expect(page.locator('.card')).toHaveCount(7);
+  await expect(page.locator('.card')).toHaveCount(9);
   await page.screenshot({ path: 'test-results/examples-gallery.png', fullPage: true });
   for (const name of [
     'Large trace',
@@ -16,6 +16,8 @@ test('demo links to a gallery with runnable examples and executable source', asy
     'Themes and overrides',
     'Report export',
     'Touchstone',
+    'React integration',
+    'Angular integration',
     'Mount, update, and destroy',
   ]) {
     await page
@@ -27,7 +29,7 @@ test('demo links to a gallery with runnable examples and executable source', asy
     await page.reload();
     await expect(page.locator('#chart svg')).toHaveCount(1);
     await page.goBack();
-    await expect(page.locator('.card')).toHaveCount(7);
+    await expect(page.locator('.card')).toHaveCount(9);
   }
   await page.setViewportSize({ width: 360, height: 740 });
   for (const slug of [
@@ -38,6 +40,8 @@ test('demo links to a gallery with runnable examples and executable source', asy
     'basic',
     'large-trace',
     'touchstone',
+    'react',
+    'angular',
   ]) {
     await page.goto(`examples/${slug}/index.html`);
     await expect(page.locator('#chart svg')).toHaveCount(1);
@@ -140,6 +144,8 @@ test('example grid labels contrast with their actual background in light and dar
     'basic',
     'large-trace',
     'touchstone',
+    'react',
+    'angular',
   ]) {
     await page.goto(`examples/${slug}/index.html`);
     await expect(page.locator('#chart svg')).toHaveCount(1);

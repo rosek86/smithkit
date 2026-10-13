@@ -39,6 +39,7 @@ try {
     '--no-audit',
     '--no-fund',
     archive,
+    'typescript@5.7.3',
   ]);
   writeFileSync(
     join(temp, 'consumer.ts'),
@@ -225,18 +226,24 @@ void [Complex, RfCalculations.readReflection, SmithEventType, events];
     ['NodeNext', 'NodeNext'],
     ['ESNext', 'Bundler'],
   ]) {
-    run(join(repo, 'node_modules/.bin/tsc'), [
-      '--strict',
-      '--noEmit',
-      '--target',
-      'ES2022',
-      '--module',
-      module,
-      '--moduleResolution',
-      resolution,
-      'consumer.ts',
-      ...examples,
-    ]);
+    for (const compiler of [
+      join(repo, 'node_modules/@typescript/native/bin/tsc'),
+      join(temp, 'node_modules/typescript/bin/tsc'),
+    ]) {
+      run('node', [
+        compiler,
+        '--strict',
+        '--noEmit',
+        '--target',
+        'ES2022',
+        '--module',
+        module,
+        '--moduleResolution',
+        resolution,
+        'consumer.ts',
+        ...examples,
+      ]);
+    }
   }
   run('node', [
     '--input-type=module',

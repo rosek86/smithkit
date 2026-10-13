@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "noEmit": true },
+  "angularCompilerOptions": { "strictTemplates": true },
+  "include": ["main.ts", "SmithChartComponent.ts"]
+}

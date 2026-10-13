@@ -5,8 +5,8 @@ export default defineConfig({
   base: './',
   resolve: { alias: { smithkit: fileURLToPath(new URL('./src/index.ts', import.meta.url)) } },
   build: {
+    target: ['chrome111', 'edge111', 'firefox114', 'safari16.4'],
     outDir: 'dist/demo',
-    target: 'es2022',
     sourcemap: true,
     rolldownOptions: {
       input: [
@@ -19,6 +19,8 @@ export default defineConfig({
         'examples/appearance/index.html',
         'examples/export/index.html',
         'examples/basic/index.html',
+        'examples/react/index.html',
+        'examples/angular/index.html',
       ],
     },
   },

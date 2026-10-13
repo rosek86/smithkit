@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   base: './',
   build: {
+    target: ['chrome111', 'edge111', 'firefox114', 'safari16.4'],
     rolldownOptions: {
       input: [
         'index.html',
@@ -13,6 +14,8 @@ export default defineConfig({
         'appearance/index.html',
         'export/index.html',
         'basic/index.html',
+        'react/index.html',
+        'angular/index.html',
       ],
     },
   },

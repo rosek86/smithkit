@@ -438,7 +438,7 @@ export class SvgChartRenderer {
   }
 
   private cursorContainer(): SmithCircle {
-    const shape = this.drawReactanceAxis({ fill: 'transparent', stroke: 'none' });
+    const shape = this.drawReactanceAxis({ fill: 'transparent', stroke: 'none', strokeWidth: '0' });
 
     shape.Element.style('pointer-events', 'all')
       .on('pointermove.smithkit', (event: PointerEvent) => {

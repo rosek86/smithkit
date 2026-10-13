@@ -7,7 +7,7 @@ interactive SVG Smith charts, RF calculations, and S11 measurement exploration.
 
 [Try the interactive demo](https://rosek86.github.io/smithkit/) or browse the
 [integration examples](https://rosek86.github.io/smithkit/examples/index.html):
-static charts, marker controls, a 100,000-sample trace, themes, report exports, and lifecycle cleanup.
+static charts, marker controls, a 100,000-sample trace, themes, report exports, React/Angular components, and lifecycle cleanup.
 Each example includes its TypeScript source.
 
 ## Features
@@ -33,12 +33,18 @@ npm install smithkit
 ```
 
 Browser applications need SVG, ES2022, and an ESM-compatible build tool.
+The checked TypeScript minimum is 5.7.3. See the
+[browser and framework compatibility baseline](https://github.com/rosek86/smithkit/blob/main/docs/compatibility.md)
+for browser targets and verification coverage.
 No library stylesheet is required. To build the library from source, see
 [Contributing](https://github.com/rosek86/smithkit/blob/main/CONTRIBUTING.md).
 
 For a complete application using the installed package, see the
 [standalone integration example](https://github.com/rosek86/smithkit/tree/main/examples/basic).
 It demonstrates mounting, replacing samples, event subscriptions, resizing, and cleanup.
+Copyable [React](https://rosek86.github.io/smithkit/examples/react/index.html) and
+[Angular](https://rosek86.github.io/smithkit/examples/angular/index.html) components
+cover the same lifecycle through framework props/inputs.
 
 For upgrades from earlier versions, see the
 [migration guide](https://github.com/rosek86/smithkit/blob/main/docs/migrations.md).

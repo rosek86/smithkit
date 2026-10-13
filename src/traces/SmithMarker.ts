@@ -59,6 +59,7 @@ export class SmithMarker extends SmithShape {
       .attr('fill', 'none')
       .attr('pointer-events', 'all')
       .attr('stroke', 'none')
+      .attr('stroke-width', 0)
       .attr('aria-hidden', 'true');
     this.focusRing = g
       .append('g')

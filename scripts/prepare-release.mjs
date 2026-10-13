@@ -24,9 +24,10 @@ assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
 const commit = git('rev-parse', 'HEAD');
 run('npm', ['run', 'check']);
 run('npm', ['run', 'test:e2e']);
-const webkitEnv = { ...process.env };
-delete webkitEnv.PLAYWRIGHT_CHANNEL;
-run('npm', ['run', 'test:e2e:webkit'], { env: webkitEnv });
+const nonChromiumEnv = { ...process.env };
+delete nonChromiumEnv.PLAYWRIGHT_CHANNEL;
+run('npm', ['run', 'test:e2e:webkit'], { env: nonChromiumEnv });
+run('npm', ['run', 'test:e2e:firefox'], { env: nonChromiumEnv });
 const directory = join(repo, 'artifacts');
 mkdirSync(directory, { recursive: true });
 // check already built the library; pack it once, then test this exact archive.
@@ -53,7 +54,7 @@ const report = {
   integrity: packed.integrity,
   size: packed.size,
   unpackedSize: packed.unpackedSize,
-  verified: ['source', 'chromium', 'webkit', 'package-consumer', 'standalone-example'],
+  verified: ['source', 'chromium', 'webkit', 'firefox', 'package-consumer', 'standalone-example'],
 };
 writeFileSync(join(directory, 'release-manifest.json'), JSON.stringify(report, null, 2) + '\n');
 console.log(`Prepared ${packed.filename} from ${commit}. No publication performed.`);

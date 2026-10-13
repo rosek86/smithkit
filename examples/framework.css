@@ -1,0 +1,9 @@
+#chart {
+  margin-top: 20px;
+}
+#chart.compact {
+  max-width: 360px;
+}
+framework-example {
+  display: block;
+}

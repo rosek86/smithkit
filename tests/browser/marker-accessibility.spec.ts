@@ -136,12 +136,30 @@ test('marker target stays 44 CSS pixels through resize and zoom', async ({ page 
     await page.locator('#chart').evaluate((node, size) => {
       node.style.width = node.style.height = size + 'px';
     }, width);
-    await expect.poll(async () => (await target.boundingBox())!.width).toBeCloseTo(44, 3);
+    await expect
+      .poll(
+        async () =>
+          await target.evaluate((node) => {
+            const circle = node as SVGCircleElement;
+            const matrix = circle.getScreenCTM()!;
+            return 2 * circle.r.baseVal.value * Math.hypot(matrix.a, matrix.b);
+          }),
+      )
+      .toBeCloseTo(44, 3);
   }
   await page.evaluate(() => window.accessibleChart.setZoomEnabled(true));
   await page.locator('#chart svg').hover({ position: { x: 250, y: 250 } });
   await page.mouse.wheel(0, -180);
-  await expect.poll(async () => (await target.boundingBox())!.width).toBeCloseTo(44, 3);
+  await expect
+    .poll(
+      async () =>
+        await target.evaluate((node) => {
+          const circle = node as SVGCircleElement;
+          const matrix = circle.getScreenCTM()!;
+          return 2 * circle.r.baseVal.value * Math.hypot(matrix.a, matrix.b);
+        }),
+    )
+    .toBeCloseTo(44, 3);
 });
 
 test('touch target selects and drags without panning; cancellation releases the gesture', async ({
