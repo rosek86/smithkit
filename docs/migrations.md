@@ -1,7 +1,8 @@
 # Migration guide
 
 This document collects upgrade notes for existing Smithkit integrations. For a
-new integration, start with the [README](../README.md) and its current API examples.
+new integration, start with the [README](../README.md) and the
+[API documentation](https://rosek86.github.io/smithkit/api/).
 When skipping versions, apply the relevant migrations in version order.
 
 ## 0.4.x to 0.5.0

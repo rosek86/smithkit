@@ -11,7 +11,7 @@
 - Keep the public API exported from `src/index.ts`. Keep the API clear and consistent; do not retain compatibility aliases for superseded APIs. During 0.x development, document breaking changes in a minor release and fixes in a patch release. Update the demo, tests, and documentation together.
 - Use `.js` extensions for relative imports inside `src/`; TypeScript resolves them to source files and emits valid ESM imports.
 - Keep RF calculations and parsing independent of the DOM. Do not import `demo/` from `src/` or access browser globals at module load time.
-- Keep consumer documentation and working examples in `README.md`, contributor instructions in `CONTRIBUTING.md`, and demo deployment instructions in `docs/deployment.md`.
+- Keep the consumer introduction in `README.md`, detailed API guides in `docs/guide/`, reference comments on public declarations, contributor instructions in `CONTRIBUTING.md`, and demo deployment instructions in `docs/deployment.md`. Generate the searchable site with `npm run build:docs`; do not edit `public/api/` output.
 - Library output belongs in `dist/lib/`; demo output belongs in `dist/demo/`. Never include demo assets, tests, or deployment credentials in the npm package.
 - For code or packaging changes, run `npm run check`. For rendering or interaction changes, also run `npm run test:e2e` against the built demo. For packaging changes, run `npm run check:package` to pack and install the library in a separate consumer project and check imports and types.
 - Documentation-only changes need link/example review and `git diff --check`, not a full test run.

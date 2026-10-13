@@ -10,6 +10,7 @@ export default defineConfig([
     'examples/**/dist/**',
     'artifacts/**',
     'dist/**',
+    'public/api/**',
     'build/**',
     'test-results/**',
     'playwright-report/**',

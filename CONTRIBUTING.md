@@ -1,7 +1,8 @@
 # Contributing
 
 This repository develops the `smithkit` library and a separate demonstration app.
-User-facing API documentation belongs in [README.md](README.md). Agent-specific
+The introduction belongs in [README.md](README.md), usage guides in `docs/guide/`,
+and reference descriptions in public TypeScript doc comments. Agent-specific
 working rules live in [AGENTS.md](AGENTS.md).
 
 ## Local development
@@ -29,6 +30,7 @@ requirement, not a browser requirement for applications using the library.
 | `npm run typecheck`            | Check types and Angular strict templates with TypeScript 7 and Angular/TypeScript 6.                  |
 | `npm run build`                | Build ESM modules and TypeScript declarations in `dist/lib/`.                                         |
 | `npm run build:demo`           | Build the demo and integration gallery in `dist/demo/`.                                               |
+| `npm run build:docs`           | Rebuild library declarations and generate the searchable API site in `public/api/`.                   |
 | `npm run preview`              | Preview the built demo.                                                                               |
 | `npm test`                     | Run calculation, parser, scale, and release verification tests.                                       |
 | `npm run api:check`            | Rebuild declarations and fail if the tracked public API report differs.                               |
@@ -281,6 +283,33 @@ publishing; publisher configuration and the release procedure are described in
 The demo is published from this repository to https://rosek86.github.io/smithkit/
 using GitHub Pages. See [docs/deployment.md](docs/deployment.md) for workflow setup
 and verification.
+
+## API documentation
+
+`npm run build:docs` rebuilds the public declarations with the native compiler,
+then TypeDoc reads only `dist/lib/index.d.ts` using its compatible TypeScript API.
+It generates reference pages and searchable guides from `docs/guide/` in
+`public/api/`. That generated directory is ignored by Git and excluded from npm.
+Do not edit the generated HTML or include private implementation classes.
+
+`npm run dev` generates the documentation before starting Vite; open `/api/` or
+use the demo navigation. After editing guides or API comments, rerun
+`npm run build:docs` and refresh. `npm run build:demo` regenerates and copies the
+site to `dist/demo/api/`, so the existing Pages workflow publishes it with the demo.
+The hosted documentation tracks `main`, not a versioned npm archive.
+
+Use relative Markdown links between guides and `{@link Smith.setOptions}`-style
+references for public symbols. TypeDoc resolves these to HTML links. Its warnings
+fail the build. Document titles determine their generated filenames; keep incoming
+links from README/examples in sync when renaming a title. Full-demo builds rewrite
+hosted API links in the examples to the local site; standalone examples keep the
+hosted links.
+
+`check:package` compiles every `ts` code block in README and the guides against
+the installed package, with TypeScript 5.7.3 and the native compiler. Each block is
+checked independently; snippets may refer to an existing `chart` and `traceId`.
+The browser documentation checks cover search, deep links, assets, and responsive
+navigation. The API Extractor report remains a separate signature-change gate.
 
 ## Hosted integration examples
 

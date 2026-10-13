@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Publish searchable API reference pages and usage guides alongside the demo. Keep README as an introduction, link framework examples to lifecycle/configuration/event documentation, and type-check guide snippets against the installed package.
+
 - Track a generated public API signature report and reject missing/stale reports or unexported local types in public signatures during CI and release checks. Add explicit report update/check commands and regression coverage.
 
 - Add React and Angular integration examples to the gallery, covering data/configuration updates, marker events, resize, mounting, and cleanup with copyable components.

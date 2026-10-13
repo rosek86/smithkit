@@ -243,7 +243,7 @@ The [browser suites](../tests/browser/) also verify invalid input, no mutation o
 rejection, event cancellation, hidden layers, and export behavior in Chromium, Firefox, and
 WebKit. [Package verification](../scripts/check-package.mjs) installs an archive,
 checks ESM imports without a DOM, compiles positive/negative NodeNext and Bundler
-types, and type-checks README examples with TypeScript 5.7.3 and 7. [Example verification](../scripts/check-example.mjs)
+types, and type-checks README and API guide examples with TypeScript 5.7.3 and 7. [Example verification](../scripts/check-example.mjs)
 builds and runs an independently installed gallery without source aliases.
 
 RF and complex-number tests cover physical units, singularities, active loads,

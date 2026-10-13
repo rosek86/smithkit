@@ -6,4 +6,5 @@ test-results/
 .DS_Store
 *.tgz
 artifacts/
+public/api/
 examples/basic/package-lock.json
