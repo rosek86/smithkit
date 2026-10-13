@@ -31,7 +31,9 @@ requirement, not a browser requirement for applications using the library.
 | `npm run build:demo`    | Build the demo and integration gallery in `dist/demo/`.                                    |
 | `npm run preview`       | Preview the built demo.                                                                    |
 | `npm test`              | Run calculation, parser, scale, and release verification tests.                            |
-| `npm run check`         | Check formatting, lint, check types, run unit tests, and build both library and demo.      |
+| `npm run api:check`     | Rebuild declarations and fail if the tracked public API report differs.                    |
+| `npm run api:update`    | Rebuild declarations and explicitly update the public API report for review.               |
+| `npm run check`         | Check formatting, lint, types, tests, the API report, and library/demo builds.             |
 | `npm run test:e2e`      | Run browser tests against the built demo under `/smithkit/`.                               |
 | `npm run check:package` | Pack and install the library in an isolated consumer; verify ESM imports and declarations. |
 | `npm pack`              | Rebuild the library and create an installable `.tgz` archive.                              |
@@ -67,6 +69,43 @@ clears that override when running WebKit and Firefox.
 CI and the release workflow use this same command. The release workflow also has
 a manual dispatch: leave `release_tag` empty to verify only, or set an existing
 release tag on the default branch to retry its publication with the current workflow.
+
+## Public API report
+
+[docs/api/smithkit.api.md](docs/api/smithkit.api.md) is the generated signature
+baseline for the package's root entry point. [API Extractor](https://api-extractor.com/pages/setup/configure_api_report/)
+analyzes the freshly emitted `dist/lib/index.d.ts` and its referenced declarations.
+It records exported classes, constructors, overloads, properties, enums, interfaces,
+and type aliases. Private implementation members are excluded. Local types exposed
+through a public signature must also be exported from `src/index.ts`; forgotten
+exports fail the check, including during an explicit report update.
+
+When changing public API:
+
+1. Update the source, examples, and relevant documentation.
+2. Run `npm run api:update` and inspect `git diff -- docs/api/smithkit.api.md`.
+3. Include the report in the same PR, explain the compatibility impact, and update
+   the changelog/migration guide as required by [the API policy](docs/api-review.md).
+4. Run `npm run check`. It includes `api:check`, so both CI and release verification
+   reject a missing or outdated report without overwriting the tracked baseline.
+
+Both API commands rebuild declarations first, preventing a stale `dist/` from
+hiding source changes. Candidate reports are written to ignored `dist/api-report/`.
+The generated baseline uses API Extractor's own formatting and LF line endings;
+Prettier intentionally skips it. Do not edit it manually or use `api:update` to
+approve changes blindly. Updating the report is an explicit review step, not an
+automatic determination that a change is compatible.
+
+The report detects declaration changes, not behavior, performance, numerical
+accuracy, or styling changes. Existing consumer/runtime tests remain required.
+Neither the report nor the extraction tool is shipped as runtime package content;
+the ESM modules and declarations remain separate, unchanged build products.
+
+API Extractor uses its bundled TypeScript engine to read emitted declarations.
+Its newer-compiler notice is expected with our TypeScript 7 / TypeScript 6 aliases;
+compiler diagnostics are still checked. Native builds and consumer compilation
+select `@typescript/native` explicitly because transitive tools can also install
+an executable named `tsc`.
 
 ## Architecture
 
@@ -162,8 +201,8 @@ checks and rejects lint warnings or formatting differences. No Git hooks are req
 
 ### TypeScript tooling compatibility
 
-The `@typescript/native` npm alias provides TypeScript 7 and the `tsc` command used
-for builds and type checking. The `typescript` alias points to
+The `@typescript/native` npm alias provides TypeScript 7, invoked explicitly by
+our build and type-check scripts. The `typescript` alias points to
 `@typescript/typescript6`, which supplies the compiler API required by
 `typescript-eslint`. This follows Microsoft's
 [side-by-side setup](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).

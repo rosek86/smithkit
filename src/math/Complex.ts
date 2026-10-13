@@ -732,7 +732,7 @@ export class Complex {
   }
 
   /**
-   * Elliptic coordinates for principal inverse functions (x,y >= 0).
+   * Elliptic coordinates for principal inverse functions (non-negative x and y).
    * With a = (|z+1| + |z-1|)/2, return acosh(a) and sqrt(a²-x²).
    * Rationalized hypot differences retain tiny components near the branch cuts.
    * Principal branches: https://dlmf.nist.gov/4.37
