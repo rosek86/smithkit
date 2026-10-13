@@ -10,9 +10,9 @@ GitHub Pages serves the built demo from `dist/demo/`, not the source files on `m
 
 A push to `main` runs `.github/workflows/ci.yml`:
 
-1. Install dependencies and Chromium/WebKit.
+1. Install dependencies and Chromium/Firefox/WebKit.
 2. Run `npm run prepare:release` to check the source, build the library and demo,
-   test both browsers, and verify the packed library and standalone consumer.
+   test all three browsers, and verify the packed library and standalone consumer.
 3. Upload `dist/demo/` as the `github-pages` artifact.
 4. Deploy that exact artifact with `actions/deploy-pages` after checks pass.
 
@@ -42,8 +42,10 @@ controls work. A successful build alone does not confirm publication.
 
 Vite generates relative asset URLs (`base: './'`). Browser tests serve the built
 demo under `/smithkit/`, matching the public site path. The Pages artifact contains
-`index.html` at its root, the integration gallery under `examples/`, and shared
-built assets. Example links and generated asset URLs work under the project path
+`index.html` at its root, the integration gallery under `examples/`, searchable
+API documentation under `api/`, and shared built assets. `build:demo` regenerates
+the documentation before Vite copies it into the artifact. No separate hosting
+or documentation deployment workflow is needed. Example links and generated asset URLs work under the project path
 and on direct navigation to nested pages.
 
 To stop automatic publication temporarily while retaining checks, disable the

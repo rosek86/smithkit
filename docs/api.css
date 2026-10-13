@@ -1,0 +1,10 @@
+/* Long signatures and guide tables must scroll inside the content column. */
+.tsd-typography table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tsd-typography {
+  overflow-wrap: anywhere;
+}

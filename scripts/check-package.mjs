@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -209,19 +209,27 @@ const events: (SmithReading | MarkerSnapshot)[] = [];
 void [Complex, RfCalculations.readReflection, SmithEventType, events];
 `,
   );
-  const examples = [
-    ...readFileSync(join(repo, 'README.md'), 'utf8').matchAll(/```ts\n([\s\S]*?)```/g),
-  ].map(([, source], index) => {
-    const name = `readme-example-${index}.ts`;
-    const context = [
-      'export {};',
-      !/^const chart\b/m.test(source) ? "declare const chart: import('smithkit').Smith;" : '',
-      !/^const traceId\b/m.test(source) ? 'declare const traceId: string;' : '',
-    ].join('\n');
-    writeFileSync(join(temp, name), `${context}\n${source}`);
-    return name;
-  });
-  assert.ok(examples.length > 0, 'Expected TypeScript examples in README.md.');
+  const documents = [
+    'README.md',
+    ...readdirSync(join(repo, 'docs/guide'))
+      .filter((name) => name.endsWith('.md'))
+      .map((name) => `docs/guide/${name}`),
+  ];
+  const examples = documents.flatMap((document) =>
+    [...readFileSync(join(repo, document), 'utf8').matchAll(/```ts\n([\s\S]*?)```/g)].map(
+      ([, source], index) => {
+        const name = `${document.replaceAll('/', '-').replace(/\.md$/, '')}-example-${index}.ts`;
+        const context = [
+          'export {};',
+          !/^const chart\b/m.test(source) ? "declare const chart: import('smithkit').Smith;" : '',
+          !/^const traceId\b/m.test(source) ? 'declare const traceId: string;' : '',
+        ].join('\n');
+        writeFileSync(join(temp, name), `${context}\n${source}`);
+        return name;
+      },
+    ),
+  );
+  assert.ok(examples.length > 0, 'Expected TypeScript examples in README and guides.');
   for (const [module, resolution] of [
     ['NodeNext', 'NodeNext'],
     ['ESNext', 'Bundler'],
@@ -277,7 +285,7 @@ assert.deepEqual(Touchstone.parse('# GHz S RI R 50\\n1 0 0').samples, [{ frequen
 `,
   ]);
   console.log(
-    `Verified ${packed.filename}: contents, installation, ESM runtime, NodeNext/Bundler types, and ${examples.length} README examples.`,
+    `Verified ${packed.filename}: contents, installation, ESM runtime, NodeNext/Bundler types, and ${examples.length} README/guide examples.`,
   );
 } finally {
   rmSync(temp, { recursive: true, force: true });

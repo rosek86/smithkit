@@ -48,6 +48,14 @@ header p {
   color: var(--muted);
   font-size: 14px;
 }
+nav[aria-label='Resources'] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+nav[aria-label='Resources'] a {
+  color: var(--accent);
+}
 .toolbar {
   display: flex;
   flex-wrap: wrap;
