@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Track a generated public API signature report and reject missing/stale reports or unexported local types in public signatures during CI and release checks. Add explicit report update/check commands and regression coverage.
+
 - Add React and Angular integration examples to the gallery, covering data/configuration updates, marker events, resize, mounting, and cleanup with copyable components.
 - Verify React development StrictMode and Angular strict templates; check installed consumers and browser behavior in Firefox alongside Chromium/WebKit. Record the TypeScript 5.7.3 consumer floor and proposed browser baseline.
 - Measure label collisions using browser paint bounds, preserve compact zero/high-value labels, and remove phantom stroke extents from invisible pointer targets in Firefox. Refresh font-relative offsets after resizing so WebKit exports match the live labels.

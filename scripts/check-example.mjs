@@ -27,7 +27,11 @@ try {
   manifest.dependencies.smithkit = `file:${archive}`;
   writeFileSync(join(app, 'package.json'), JSON.stringify(manifest));
   run('npm', ['install', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund'], app);
-  run(join(repo, 'node_modules/.bin/tsc'), ['--project', 'tsconfig.json'], app);
+  run(
+    process.execPath,
+    [join(repo, 'node_modules/@typescript/native/bin/tsc'), '--project', 'tsconfig.json'],
+    app,
+  );
   run(join(app, 'node_modules/.bin/ngc'), ['-p', 'angular/tsconfig.json'], app);
   run('npm', ['run', 'build'], app);
 

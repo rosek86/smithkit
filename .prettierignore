@@ -10,3 +10,6 @@ artifacts/
 examples/**/dist/
 examples/**/node_modules/
 examples/**/package-lock.json
+
+# API Extractor owns the generated report format.
+docs/api/*.api.md

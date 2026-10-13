@@ -7,6 +7,15 @@ interactive defaults, and an automatic marker. See [migration to 0.4](migration-
 This review defines the compatibility scope intended for **1.x**; it does not
 publish 1.0 or retroactively promise compatibility for 0.x releases.
 
+## Signature baseline
+
+The generated [public API report](api/smithkit.api.md) records the current root
+exports and their signatures. `npm run check` rejects declaration changes unless
+the report is explicitly regenerated and included in the same PR. See
+[the contributor workflow](../CONTRIBUTING.md#public-api-report). This catches
+accidental exposure/removal and type changes; it does not replace the behavioral
+contracts or compatibility decisions below.
+
 ## Decision
 
 Keep one public entry point, `smithkit`, and a small class-based API. The examples
