@@ -23,12 +23,87 @@ installed-package gallery. WebKit testing is useful Safari coverage, but is not
 a test of the Safari application or a physical iOS device. Edge is not run
 separately.
 
-**The minimum versions above are build/support targets, not results from testing
-those historical browser binaries.** Before declaring 1.0, verify these floors
-on the actual browsers, including Safari/iOS, or adjust the documented baseline.
+**The minimum versions above are proposed build/support targets, not a fully
+verified support guarantee.** The native-browser evidence below covers one
+historical Firefox release line; it does not confirm every baseline browser or patch.
+Before declaring 1.0, verify the remaining floors on actual browsers,
+including Safari/iOS, or adjust the documented baseline.
 The currently tested engines and their versions can be inspected through the
 installed Playwright browsers. Raising a confirmed support floor during 1.x will
 require a major release.
+
+## Native-browser verification
+
+Last checked: **2026-10-13**, library source at
+[`b5b12a9`](https://github.com/rosek86/smithkit/commit/b5b12a93d31a597ca9c596a16f43797554e479f3).
+The integration CI failure from PR #50 was fixed in
+[PR #51](https://github.com/rosek86/smithkit/pull/51); the subsequent
+[main CI run passed](https://github.com/rosek86/smithkit/actions/runs/38351309947).
+
+| Browser                   | Evidence                                                                                                           | Remaining work before confirming the floor                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| Firefox 114.0 and 114.0.2 | Native Firefox binaries, geckodriver 0.33.0, headless on macOS 26.6: smoke checks passed.                          | Other operating systems were not tested.                                                                      |
+| Chrome 111                | No historical Chrome run. Current Playwright Chromium coverage is separate.                                        | Test the actual baseline Chrome build.                                                                        |
+| Edge 111                  | No native Edge run.                                                                                                | Test the actual baseline Edge build.                                                                          |
+| Safari 16.4               | No native Safari 16.4 run. Installed Safari 26.6 refused WebDriver sessions because remote automation is disabled. | Enable local automation to check current Safari; use a separate compatible macOS/device environment for 16.4. |
+| iOS Safari 16.4           | No physical device or device-testing service available.                                                            | Test on a real device, including touch gestures and export/download behavior.                                 |
+
+The [Firefox 114.0 report](browser-checks/firefox-114.0-macos.json) records the
+exact floor check. Its dirty-checkout flag reflects the new test harness and
+documentation; library sources were unchanged from the revision above. The
+114.0.2 screenshot was also reviewed for labels and marker rendering.
+
+The Firefox smoke check exercises the emitted `dist/lib` package, bundled for
+the declared browser targets. It checks packed Touchstone import, SVG paths and
+labels (including Unicode), text measurement, radial scales, data/options updates
+without replacing the SVG, ResizeObserver, the 44px marker target, a synthetic
+wheel event, keyboard marker movement through WebDriver, focus/ARIA/events,
+SVG/PNG export with scales and legends, and repeated mount/destroy cycles.
+It is a focused smoke test, not the full Playwright suite or a framework support
+certification. The wheel test does not establish native trackpad or pinch behavior.
+
+### Reproduce with a browser's own WebDriver
+
+Start the vendor's driver in another terminal. For Safari, use
+`/usr/bin/safaridriver -p 4445` after manually enabling
+[Allow Remote Automation](https://developer.apple.com/documentation/webkit/testing-with-webdriver-in-safari).
+The script never changes this setting. For Firefox, start
+`geckodriver --port 4446`; use a driver compatible with the selected version
+([Mozilla's support table](https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html)).
+Firefox binaries were taken from the
+[official Mozilla archive](https://archive.mozilla.org/pub/firefox/releases/114.0/mac/en-US/).
+Historical test binaries should use isolated profiles, not replace a daily browser.
+
+```sh
+# Exact version checking prevents silently testing a different installed browser.
+npm run check:browser -- --driver http://127.0.0.1:4445 --browser safari --version 26.6
+
+npm run check:browser -- --driver http://127.0.0.1:4446 \
+  --browser firefox --version 114.0 \
+  --binary /path/to/Firefox.app/Contents/MacOS/firefox --headless
+```
+
+The runner rebuilds the library, serves only its test fixture on loopback, opens
+a new WebDriver session, and closes the session and HTTP server in `finally`.
+It does not start or stop the vendor driver. `--browser chrome` and
+`--browser MicrosoftEdge` accept the same optional `--binary` and `--headless`
+flags. These adapters have not yet been verified against native Chrome/Edge.
+The driver must run on the same computer: the loopback fixture is not reachable
+from a remote device or cloud service.
+
+Results and a pre-cleanup screenshot go to `artifacts/compatibility/`; change the
+directory with `--output`. JSON records the exact browser version, user agent,
+commit, dirty-checkout flag, fixture bundle SHA-256, completed checks, and errors.
+A mismatch with `--version` fails the run. A green result only supports the
+listed checks on that particular browser/build/platform.
+
+For physical iOS verification, use the hosted demo and integration gallery. Record
+the device model, iOS/Safari version and tested commit; check initial rendering and
+labels, rotation/resize, marker selection/drag/cancellation, pan/pinch interaction,
+SVG/PNG download and opening the saved files, and the React/Angular examples'
+update and unmount/remount controls. Compare framework results against each
+framework's own baseline. Desktop emulation and Playwright WebKit do not close
+this verification item.
 
 ## TypeScript and runtime
 
