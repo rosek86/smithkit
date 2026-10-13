@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createServer } from 'vite';
+import { createServer, type ViteDevServer } from 'vite';
 
 for (const framework of ['react', 'angular']) {
   test(`${framework} preserves its chart across props, cleans up, and remounts`, async ({
@@ -81,8 +81,16 @@ for (const framework of ['react', 'angular']) {
 test('React development StrictMode replays effects without leaking a chart or subscription', async ({
   page,
 }) => {
-  const server = await createServer({ server: { host: '127.0.0.1', port: 0, open: false } });
+  // Other browser tests call Vite's build API, which can leave NODE_ENV=production
+  // in a reused worker. StrictMode effect replay requires development React.
+  const previousNodeEnv = process.env.NODE_ENV;
+  let server: ViteDevServer | undefined;
   try {
+    process.env.NODE_ENV = 'development';
+    server = await createServer({
+      mode: 'development',
+      server: { host: '127.0.0.1', port: 0, open: false },
+    });
     await server.listen();
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -119,7 +127,14 @@ test('React development StrictMode replays effects without leaking a chart or su
     expect(await page.evaluate(() => Reflect.get(window, 'chartObservers').active)).toBe(0);
     expect(errors).toEqual([]);
   } finally {
-    await page.goto('about:blank');
-    await server.close();
+    try {
+      await server?.close();
+    } finally {
+      if (previousNodeEnv === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = previousNodeEnv;
+      }
+    }
   }
 });
