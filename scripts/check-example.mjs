@@ -4,7 +4,7 @@ import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync }
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { basename, extname, join, resolve } from 'node:path';
-import { chromium, webkit, expect } from '@playwright/test';
+import { chromium, webkit, firefox, expect } from '@playwright/test';
 
 const repo = resolve(import.meta.dirname, '..');
 const temp = mkdtempSync(join(tmpdir(), 'smithkit-example-'));
@@ -28,6 +28,7 @@ try {
   writeFileSync(join(app, 'package.json'), JSON.stringify(manifest));
   run('npm', ['install', '--prefer-offline', '--ignore-scripts', '--no-audit', '--no-fund'], app);
   run(join(repo, 'node_modules/.bin/tsc'), ['--project', 'tsconfig.json'], app);
+  run(join(app, 'node_modules/.bin/ngc'), ['-p', 'angular/tsconfig.json'], app);
   run('npm', ['run', 'build'], app);
 
   // Serve only files from the consumer's built output, never the repository sources.
@@ -59,7 +60,7 @@ try {
     server.listen(0, '127.0.0.1', resolve);
   });
   const url = `http://127.0.0.1:${server.address().port}/`;
-  for (const engine of [chromium, webkit]) {
+  for (const engine of [chromium, webkit, firefox]) {
     const browser = await engine.launch(
       engine === chromium && process.env.PLAYWRIGHT_CHANNEL
         ? { channel: process.env.PLAYWRIGHT_CHANNEL }
@@ -128,6 +129,25 @@ try {
           await page.getByRole('button', { name: 'Download SVG' }).click();
           assert.equal((await download).suggestedFilename(), 'smithkit-report.svg');
         }
+      }
+      for (const framework of ['react', 'angular']) {
+        await page.goto(`${url}${framework}/index.html`);
+        await expect(page.locator('#chart svg')).toHaveCount(1);
+        await expect(page.locator('#reading')).toContainText('1.5 GHz');
+        await page.getByRole('button', { name: 'Replace sweep' }).click();
+        await expect(page.locator('#reading')).toContainText('0.200 + 0.100i');
+        await page.getByLabel('Dark theme').check();
+        await page.getByLabel('Compact chart').check();
+        await expect
+          .poll(async () => (await page.locator('#chart svg').boundingBox()).width)
+          .toBe(360);
+        await page.getByLabel('Marker sample').fill('2');
+        await expect(page.locator('#reading')).toContainText('2 GHz');
+        await page.getByRole('button', { name: 'Unmount chart', exact: true }).click();
+        await expect(page.locator('#chart svg')).toHaveCount(0);
+        await page.getByRole('button', { name: 'Mount chart', exact: true }).click();
+        await expect(page.locator('#chart svg')).toHaveCount(1);
+        await expect(page.locator('#reading')).toContainText('2 GHz');
       }
       assert.deepEqual(errors, []);
       console.log(

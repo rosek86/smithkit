@@ -15,12 +15,12 @@ export default defineConfig([
     'playwright-report/**',
   ]),
   {
-    files: ['**/*.{js,mjs,ts}'],
+    files: ['**/*.{js,mjs,ts,tsx}'],
     extends: [js.configs.recommended],
     languageOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   },
   {
-    files: ['**/*.ts'],
+    files: ['**/*.{ts,tsx}'],
     extends: [tseslint.configs.recommended],
     rules: {
       '@typescript-eslint/no-unused-vars': [
@@ -46,7 +46,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/**/*.ts', 'demo/**/*.ts', 'examples/**/*.ts'],
+    files: ['src/**/*.ts', 'demo/**/*.ts', 'examples/**/*.{ts,tsx}'],
     languageOptions: { globals: globals.browser },
   },
   {
@@ -73,7 +73,7 @@ export default defineConfig([
   },
   prettier,
   {
-    files: ['**/*.{js,mjs,ts}'],
+    files: ['**/*.{js,mjs,ts,tsx}'],
     rules: { curly: ['error', 'all'] },
   },
 ]);

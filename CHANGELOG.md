@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add React and Angular integration examples to the gallery, covering data/configuration updates, marker events, resize, mounting, and cleanup with copyable components.
+- Verify React development StrictMode and Angular strict templates; check installed consumers and browser behavior in Firefox alongside Chromium/WebKit. Record the TypeScript 5.7.3 consumer floor and proposed browser baseline.
+- Measure label collisions using browser paint bounds, preserve compact zero/high-value labels, and remove phantom stroke extents from invisible pointer targets in Firefox. Refresh font-relative offsets after resizing so WebKit exports match the live labels.
+
 ## 0.5.0 — 2026-10-09
 
 - Add Touchstone 1.x `.s2p` import with explicit S11/S22 selection and direct packed `Float64Array` output, keeping object samples as the default. Add `.s1p` serialization in Hz/RI, packed sample renormalization, demo import controls, and a downloadable Touchstone integration example.

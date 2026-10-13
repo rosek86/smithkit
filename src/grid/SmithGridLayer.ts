@@ -43,7 +43,9 @@ export class SmithGridLayer extends ConstCircles {
       const label = GridGeometry.label(kind, tick.definition);
       const text = new SmithText(this.scaler.point(label.point), label.text, {
         rotate: label.rotate,
-        dx: this.scaler.r(label.dx).toString(),
+        // Keep the zero clear of the opposite grid's high-value labels even
+        // when minimum font sizing or browser font metrics enlarge it.
+        dx: real && tick.definition.point.r === 0 ? '0.9em' : this.scaler.r(label.dx).toString(),
         dy: this.scaler.r(label.dy).toString(),
         textAnchor: label.textAnchor,
         dominantBaseline: label.dominantBaseline,

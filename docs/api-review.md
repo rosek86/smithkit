@@ -1,7 +1,8 @@
 # Public API review and compatibility policy
 
 Reviewed against **0.5.0**, including compact trace input, optional line simplification, and Touchstone reflection I/O,
-including the installed integration examples. Version 0.3.0 used positional constructor arguments,
+including the installed integration examples and the subsequent React/Angular
+lifecycle verification. Version 0.3.0 used positional constructor arguments,
 interactive defaults, and an automatic marker. See [migration to 0.4](migration-0.4.md).
 This review defines the compatibility scope intended for **1.x**; it does not
 publish 1.0 or retroactively promise compatibility for 0.x releases.
@@ -219,19 +220,21 @@ antialiasing, and identical fonts across browsers are not guaranteed.
 
 ## Evidence from integrations
 
-| Integration                                    | API boundary exercised                                      | Automated evidence                                                              |
-| ---------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| [Static chart](../examples/static/main.ts)     | Defaults, explicit data, no implicit markers or interaction | `chart-options.spec.ts`, `examples.spec.ts`                                     |
-| [Marker controls](../examples/markers/main.ts) | Explicit IDs, events, keyboard focus, sample selection      | `marker-accessibility.spec.ts`, `marker-update.spec.ts`, `measurements.spec.ts` |
-| [Appearance](../examples/appearance/main.ts)   | Theme replacement, layer precedence, cursor opt-in          | `appearance.spec.ts`, `chart-options.spec.ts`                                   |
-| [Reports](../examples/export/main.ts)          | SVG/PNG snapshots, marker legends, download owned by caller | `svg-export.spec.ts`, `png-export.spec.ts`, `marker-legend.spec.ts`             |
-| [Lifecycle](../examples/basic/main.ts)         | Mount, update, subscriptions, resize, destroy               | `lifecycle.spec.ts`, isolated consumer check                                    |
+| Integration                                           | API boundary exercised                                             | Automated evidence                                                              |
+| ----------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [Static chart](../examples/static/main.ts)            | Defaults, explicit data, no implicit markers or interaction        | `chart-options.spec.ts`, `examples.spec.ts`                                     |
+| [Marker controls](../examples/markers/main.ts)        | Explicit IDs, events, keyboard focus, sample selection             | `marker-accessibility.spec.ts`, `marker-update.spec.ts`, `measurements.spec.ts` |
+| [Appearance](../examples/appearance/main.ts)          | Theme replacement, layer precedence, cursor opt-in                 | `appearance.spec.ts`, `chart-options.spec.ts`                                   |
+| [Reports](../examples/export/main.ts)                 | SVG/PNG snapshots, marker legends, download owned by caller        | `svg-export.spec.ts`, `png-export.spec.ts`, `marker-legend.spec.ts`             |
+| [React](../examples/react/SmithChart.tsx)             | Effect setup/cleanup, props, StrictMode replay                     | `frameworks.spec.ts`, isolated consumer check                                   |
+| [Angular](../examples/angular/SmithChartComponent.ts) | Browser mount, input patches, outputs, zoneless state, destruction | `frameworks.spec.ts`, strict template compiler, isolated consumer check         |
+| [Lifecycle](../examples/basic/main.ts)                | Mount, update, subscriptions, resize, destroy                      | `lifecycle.spec.ts`, isolated consumer check                                    |
 
 The [browser suites](../tests/browser/) also verify invalid input, no mutation on
-rejection, event cancellation, hidden layers, and export behavior in Chromium and
+rejection, event cancellation, hidden layers, and export behavior in Chromium, Firefox, and
 WebKit. [Package verification](../scripts/check-package.mjs) installs an archive,
 checks ESM imports without a DOM, compiles positive/negative NodeNext and Bundler
-types, and type-checks README examples. [Example verification](../scripts/check-example.mjs)
+types, and type-checks README examples with TypeScript 5.7.3 and 7. [Example verification](../scripts/check-example.mjs)
 builds and runs an independently installed gallery without source aliases.
 
 RF and complex-number tests cover physical units, singularities, active loads,
@@ -267,19 +270,23 @@ exact SVG bytes/pixels, demo controls/URLs, dependency versions, event timer
 intervals, or error-message text. The root package exports are the supported
 boundary; use appearance/layer APIs instead of editing generated DOM.
 
-The supported browser/runtime and TypeScript floors should be recorded with 1.0.
-Raising those floors in 1.x is a major change. The checked baseline today is a
-browser with SVG and ES2022, an ESM build, NodeNext/Bundler declarations, and the
-Chromium/WebKit engines used in CI; the tests do not establish support for every
-older browser or TypeScript version.
+The proposed runtime/compiler floors and their verification limits are recorded
+in [compatibility](compatibility.md): TypeScript 5.7.3, Chrome/Edge 111, Firefox 114,
+and Safari/iOS 16.4. Raising confirmed floors in 1.x is a major change. Current
+engine tests establish behavior in the installed Playwright versions, not every
+historical baseline browser or an actual iOS device.
 
 ## Gates before declaring 1.0
 
-1. Exercise the grouped 0.4 API in real consumer projects; resolve reported contract ambiguities before freezing it.
-2. Keep package, isolated examples, and both browser suites required for releases.
-   Confirm published-archive behavior, not just the demo's source alias.
-3. Record minimum runtime/compiler support and the agreed compatibility policy in
-   the 1.0 release notes. No further architectural rewrite is required by this review.
+1. React and Angular examples now exercise configuration, data, events, resize,
+   and destruction through the public API. No new framework-specific public API
+   is required. Keep these components as examples until consumer feedback
+   justifies separately maintained wrappers.
+2. Keep package, isolated examples, and all three browser suites required for
+   releases. Confirm published-archive behavior, not just the demo's source alias.
+3. Verify the proposed browser floors on actual baseline browsers, including
+   Safari/iOS, and record the confirmed baseline and compatibility policy in the
+   1.0 release notes. No further architectural rewrite is required by this review.
 
 Complex reference impedances, full multiport Touchstone matrices/renormalization, Touchstone 2.x, additional renderers, and
 application session storage are outside the present scope. Their absence does not

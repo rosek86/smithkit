@@ -330,11 +330,16 @@ test('demo throttles continuous movement and cancels pending updates on leave or
   const surface = page.locator('#smith circle[fill=transparent]');
   const move = async (re: number) => {
     await surface.evaluate((node, value) => {
-      const box = node.getBoundingClientRect();
+      const circle = node as SVGCircleElement;
+      // Use SVG geometry, not the browser's rounded paint bounds.
+      const point = new DOMPoint(
+        circle.cx.baseVal.value + circle.r.baseVal.value * value,
+        circle.cy.baseVal.value,
+      ).matrixTransform(circle.getScreenCTM()!);
       node.dispatchEvent(
         new PointerEvent('pointermove', {
-          clientX: box.x + box.width * (0.5 + value / 2),
-          clientY: box.y + box.height / 2,
+          clientX: point.x,
+          clientY: point.y,
         }),
       );
     }, re);
@@ -346,7 +351,8 @@ test('demo throttles continuous movement and cancels pending updates on leave or
   await expect(value).toHaveText('—');
   await page.clock.runFor(14);
   await expect(value).toHaveText('3 : 1');
-  await expect(page.locator('#parameter-gamma')).toHaveText('0.500 + 0.000i');
+  // Coordinate inversion can place an on-axis pointer infinitesimally below zero.
+  await expect(page.locator('#parameter-gamma')).toHaveText(/0\.500 [+-] 0\.000i/);
 
   await move(0.2);
   await page.clock.runFor(20);

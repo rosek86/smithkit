@@ -89,7 +89,6 @@ export class LabelLayout {
           label,
           order,
           scale,
-          matrix: matrix!,
           baseSize: parseFloat(style(label).fontSize),
           priority: Number(label.dataset.labelPriority ?? 0),
         },
@@ -101,10 +100,18 @@ export class LabelLayout {
         this.resizedFonts.set(label, label.style.fontSize);
         label.style.fontSize = `${9 / scale}px`;
       }
+      // WebKit can retain the old em offset after the font size changes.
+      // Reapply it before measuring so live and exported SVG use the same position.
+      const dx = label.getAttribute('dx');
+      if (dx?.endsWith('em')) {
+        label.setAttribute('dx', dx);
+      }
     }
     const measured = candidates.map((entry) => ({
       ...entry,
-      box: LabelLayout.transformBox(entry.label.getBBox(), entry.matrix),
+      // Screen bounds include the browser's glyph/paint envelope. Normalizing
+      // them keeps collision decisions independent of the current zoom.
+      box: LabelLayout.transformBox(entry.label.getBoundingClientRect(), normalize),
     }));
     measured.sort((a, b) => b.priority - a.priority || a.order - b.order);
     const occupied: LabelBox[] = [];

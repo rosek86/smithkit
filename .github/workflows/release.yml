@@ -40,7 +40,7 @@ jobs:
         run: |
           node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const p = JSON.parse(fs.readFileSync('package.json')); assert.equal(process.env.RELEASE_TAG, 'v' + p.version); assert.match(p.version, /^\d+\.\d+\.\d+$/);"
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps chromium webkit firefox
       - run: npm run prepare:release
       - uses: actions/upload-artifact@v7
         with:

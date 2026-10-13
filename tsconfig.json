@@ -12,7 +12,16 @@
     "types": ["vite/client", "node"],
     "paths": {
       "smithkit": ["./src/index.ts"]
-    }
+    },
+    "jsx": "react-jsx",
+    "experimentalDecorators": true
   },
-  "include": ["src/**/*.ts", "demo/**/*.ts", "tests/**/*.ts", "*.config.ts", "examples/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "demo/**/*.ts",
+    "tests/**/*.ts",
+    "*.config.ts",
+    "examples/**/*.ts",
+    "examples/**/*.tsx"
+  ]
 }

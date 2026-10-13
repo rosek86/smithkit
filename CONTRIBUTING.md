@@ -26,7 +26,7 @@ requirement, not a browser requirement for applications using the library.
 | `npm run lint:fix`      | Apply automatic ESLint fixes.                                                              |
 | `npm run format`        | Format source, configuration, demo assets, and documentation with Prettier.                |
 | `npm run format:check`  | Check formatting without changing files.                                                   |
-| `npm run typecheck`     | Check library, demo, examples, tests, and configuration types.                             |
+| `npm run typecheck`     | Check types and Angular strict templates with TypeScript 7 and Angular/TypeScript 6.       |
 | `npm run build`         | Build ESM modules and TypeScript declarations in `dist/lib/`.                              |
 | `npm run build:demo`    | Build the demo and integration gallery in `dist/demo/`.                                    |
 | `npm run preview`       | Preview the built demo.                                                                    |
@@ -39,24 +39,30 @@ requirement, not a browser requirement for applications using the library.
 For browser tests, run `npm run build:demo` and `npx playwright install chromium`
 first. To use an installed Chrome instead, run
 `PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. Run WebKit coverage with
-`npm run test:e2e:webkit` after `npx playwright install webkit`. CI runs both
-Chromium and WebKit. Native pointer assertions allow device-pixel rounding;
+`npm run test:e2e:webkit` after `npx playwright install webkit`. Run Firefox with `npm run test:e2e:firefox` after `npx playwright install firefox`.
+CI runs Chromium, Firefox, and WebKit. Native pointer assertions allow device-pixel rounding;
 SVG text bounds use DOM geometry so text anchors are included.
+
+Framework packages are development dependencies used by the gallery only.
+Angular's compiler uses the TypeScript 6 API alias; the library build continues to
+use TypeScript 7. `check:package` separately installs TypeScript 5.7.3 in its
+temporary consumer to verify the minimum supported declarations without changing
+the repository's compiler. See [compatibility](docs/compatibility.md).
 
 ### Release and consumer verification
 
 `npm run check:example` packs the library, installs it into a temporary copy of
 `examples/`, checks its types, builds the gallery, and exercises the installed consumers
-in Chromium and WebKit. Both `check:package` and `check:example` accept an existing
+in Chromium, Firefox, and WebKit. Both `check:package` and `check:example` accept an existing
 archive path after `--`, so release checks can reuse exactly the archive being shipped.
 
 From a clean committed checkout, run `npm run prepare:release` for all source checks,
-both demo browser suites, package-consumer checks, and the standalone example. It
+all three demo browser suites, package-consumer checks, and the standalone example. It
 writes `artifacts/smithkit-0.5.0.tgz` and `artifacts/release-manifest.json`, containing
 the commit, SHA-256, npm integrity, and archive sizes. Nothing is published.
-Install Chromium and WebKit first with `npx playwright install chromium webkit`.
+Install all three engines first with `npx playwright install chromium webkit firefox`.
 `PLAYWRIGHT_CHANNEL=chrome` can select installed Chrome for local checks; the script
-clears that override when running WebKit.
+clears that override when running WebKit and Firefox.
 
 CI and the release workflow use this same command. The release workflow also has
 a manual dispatch: leave `release_tag` empty to verify only, or set an existing
@@ -239,7 +245,7 @@ and verification.
 build. The root build aliases `smithkit` to `src/index.ts` so PR previews exercise
 the current library. The standalone examples have no source alias and import the
 installed package; `check:example` copies them outside this repository and verifies
-the packed library in Chromium and WebKit.
+the packed library in Chromium, Firefox, and WebKit.
 
 Add new pages to the input lists in both Vite configurations and to gallery checks.
 Each page should focus on one task. `page.ts` displays `main.ts?raw`, so the shown

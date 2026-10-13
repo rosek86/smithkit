@@ -371,9 +371,12 @@ test('traces share the current view when created before mounting or after zoom a
     const zoomed = view.getAttribute('transform') !== initial;
     chart.addMarker(chart.addTrace(samples, { pointRadius: 3 }));
     const sizes = () =>
-      [...svg.querySelectorAll('[data-role=samples] circle, .marker-hit-area')].map(
-        (node) => node.getBoundingClientRect().width,
-      );
+      [...svg.querySelectorAll('[data-role=samples] circle, .marker-hit-area')].map((node) => {
+        // Firefox expands/quantizes screen bounds, even for invisible SVG circles.
+        const circle = node as SVGCircleElement;
+        const matrix = circle.getScreenCTM()!;
+        return 2 * circle.r.baseVal.value * Math.hypot(matrix.a, matrix.b);
+      });
     const afterZoom = sizes();
     const pointBoxes = [...svg.querySelectorAll('[data-role=samples] circle')].map((node) =>
       node.getBoundingClientRect(),

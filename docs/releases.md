@@ -30,12 +30,12 @@ together. A stable 1.0 release should follow validation in real consuming applic
 
    ```sh
    npm ci
-   npx playwright install chromium webkit
+   npx playwright install chromium webkit firefox
    npm run prepare:release
    ```
 
-   This runs source checks, both demo browser suites, package type/runtime checks,
-   and the standalone consumer example in both browsers. It packs only once and
+   This runs source checks, all three demo browser suites, package type/runtime checks,
+   and the standalone consumer example in Chromium, Firefox, and WebKit. It packs only once and
    installs that archive for consumer verification.
 
 3. Inspect `artifacts/release-manifest.json`: package name/version, source commit,
