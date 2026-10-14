@@ -96,8 +96,9 @@ preserve the current readings. Labels wrap to fit the exported scales.
 
 `chart.toSvg(options?)` and `scales.toSvg(options?)` return SVG strings synchronously.
 They accept the same `SmithImageExportOptions` / `ScaleImageExportOptions` as PNG export,
-including size, background, legend, and scales. Omitting options preserves the
-original standalone SVG snapshot. Call them after `draw()`
+including size, background, legend, and scales. Omitting options is equivalent to
+passing `{}`: both use the natural snapshot size and enforce the same output limits.
+Call them after `draw()`
 while the component is mounted and has a non-zero rendered size; exporting before
 mounting, from a `display: none` container, or after destruction throws an error.
 

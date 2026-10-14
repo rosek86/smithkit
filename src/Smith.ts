@@ -186,13 +186,10 @@ export class Smith {
   }
 
   /** Export the current mounted view as standalone SVG with its configured background. */
-  public toSvg(options?: SmithImageExportOptions): string {
+  public toSvg(options: SmithImageExportOptions = {}): string {
     this.assertAlive();
     this.validateExportOptions(options);
-    const source = this.renderer.toSvg(options?.lineDetail ?? 'full');
-    if (options === undefined) {
-      return source;
-    }
+    const source = this.renderer.toSvg(options.lineDetail ?? 'full');
     const sources = [source];
     if (options.scales) {
       sources.push(options.scales.toSvg({ readout: options.scaleReadout }));
