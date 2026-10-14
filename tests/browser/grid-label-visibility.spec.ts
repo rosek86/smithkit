@@ -111,8 +111,8 @@ test('demo checkbox controls all grid labels across detail, visibility, zoom, an
   await page.getByLabel('Grid detail').selectOption('basic');
   await page.getByLabel('Impedance', { exact: true }).uncheck();
   await page.getByLabel('Admittance', { exact: true }).check();
-  await page.locator('#theme').selectOption('dark');
   await page.getByRole('button', { name: 'Close', exact: true }).click();
+  await page.locator('#theme').selectOption('dark');
   await page.locator('#smith').hover();
   await page.mouse.wheel(0, -100);
   await page.setViewportSize({ width: 1100, height: 800 });

@@ -1,5 +1,42 @@
 import { expect, test } from '@playwright/test';
 
+test.describe('settings backdrop', () => {
+  test.use({ hasTouch: true });
+
+  for (const width of [1280, 360]) {
+    test(`outside clicks and taps dismiss settings at ${width}px without losing changes`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto('./');
+      const opener = page.getByRole('button', { name: 'Chart settings', exact: true });
+      const dialog = page.getByRole('dialog', { name: 'Chart settings', exact: true });
+      await opener.click();
+      await dialog.getByLabel('Grid labels', { exact: true }).uncheck();
+      const bounds = (await dialog.boundingBox())!;
+      // Dialog padding is part of the panel, even though the dialog is the event target.
+      await page.mouse.click(bounds.x + 8, bounds.y + 8);
+      await expect(dialog).toBeVisible();
+      // Ending a drag outside must not act like clicking the backdrop.
+      await page.mouse.move(bounds.x + 8, bounds.y + 8);
+      await page.mouse.down();
+      await page.mouse.move(4, 4);
+      await page.mouse.up();
+      await expect(dialog).toBeVisible();
+      await page.mouse.click(4, 4);
+      await expect(dialog).not.toBeVisible();
+      await expect(opener).toBeFocused();
+      await opener.click();
+      await expect(dialog.getByLabel('Grid labels', { exact: true })).not.toBeChecked();
+      await page.touchscreen.tap(4, 4);
+      await expect(dialog).not.toBeVisible();
+      await expect(opener).toBeFocused();
+      await expect(page.locator('header #theme')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    });
+  }
+});
+
 test('chart settings group all preferences, prevent background keyboard interaction, and retain changes on close', async ({
   page,
 }) => {
@@ -12,7 +49,6 @@ test('chart settings group all preferences, prevent background keyboard interact
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'Close', exact: true })).toBeFocused();
   for (const id of [
-    'theme',
     'impedance',
     'admittance',
     'constantQ',
@@ -38,8 +74,7 @@ test('chart settings group all preferences, prevent background keyboard interact
   }
   await dialog.getByLabel('Grid labels', { exact: true }).uncheck();
   await dialog.getByLabel('Grid detail').selectOption('basic');
-  await dialog.getByLabel('Theme', { exact: true }).selectOption('dark');
-  await expect(dialog).toHaveCSS('background-color', 'rgb(15, 23, 42)');
+  await expect(dialog).toHaveCSS('background-color', 'rgb(25, 28, 32)');
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
   await expect(opener).toBeFocused();
@@ -47,7 +82,7 @@ test('chart settings group all preferences, prevent background keyboard interact
   await opener.click();
   await expect(dialog.getByLabel('Grid labels', { exact: true })).not.toBeChecked();
   await expect(dialog.getByLabel('Grid detail')).toHaveValue('basic');
-  await expect(dialog.getByLabel('Theme', { exact: true })).toHaveValue('dark');
+  await expect(dialog.locator('#theme')).toHaveCount(0);
   await page.screenshot({ path: 'test-results/settings-dialog-dark.png' });
   await dialog.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(opener).toBeFocused();

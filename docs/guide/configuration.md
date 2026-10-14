@@ -162,7 +162,7 @@ those individual overrides. Invalid appearance settings throw before making chan
 
 SVG exports resolve the appearance without requiring theme CSS. A configured
 background is included in the exported image; `transparent` preserves transparency.
-The **Theme** selector in the demo's **Chart settings** dialog updates both library components and the demo UI.
+The **Theme** selector in the demo's top-right header updates both library components and the demo UI.
 
 ## Grid layers
 

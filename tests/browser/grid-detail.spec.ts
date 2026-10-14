@@ -139,8 +139,8 @@ test('demo selector applies all three levels to both grids and exports the basic
   await page.getByRole('button', { name: 'Chart settings', exact: true }).click();
   await page.locator('#impedance').uncheck();
   await page.locator('#admittance').check();
-  await page.locator('#theme').selectOption('dark');
   await page.getByRole('button', { name: 'Close', exact: true }).click();
+  await page.locator('#theme').selectOption('dark');
   await page.screenshot({ path: 'test-results/basic-admittance-dark.png', fullPage: true });
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export', exact: true }).click();

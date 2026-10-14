@@ -41,21 +41,72 @@ settingsButton.addEventListener('click', () => {
 });
 window.addEventListener('resize', positionSettingsDialog);
 window.addEventListener('scroll', positionSettingsDialog, { passive: true });
-settingsDialog.addEventListener('close', () => settingsButton.focus({ preventScroll: true }));
+let settingsPressOutside = false;
+function outsideSettings(event: MouseEvent): boolean {
+  const bounds = settingsDialog.getBoundingClientRect();
+  return (
+    event.target === settingsDialog &&
+    (event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom)
+  );
+}
+settingsDialog.addEventListener('pointerdown', (event) => {
+  settingsPressOutside = event.button === 0 && outsideSettings(event);
+});
+settingsDialog.addEventListener('pointercancel', () => {
+  settingsPressOutside = false;
+});
+settingsDialog.addEventListener('click', (event) => {
+  if (settingsPressOutside && outsideSettings(event)) {
+    settingsDialog.close();
+  }
+  settingsPressOutside = false;
+});
+settingsDialog.addEventListener('close', () => {
+  settingsPressOutside = false;
+  settingsButton.focus({ preventScroll: true });
+});
+
+function demoAppearance(theme: SmithAppearance['theme']): SmithAppearance {
+  return {
+    theme,
+    ...(theme === 'dark'
+      ? {
+          overrides: {
+            background: '#191c20',
+            fontFamily: 'Arial, sans-serif',
+            grid: { stroke: '#727984', textColor: '#c7cbd1' },
+            boundary: { stroke: '#9da3ad' },
+            scales: {
+              stroke: '#727984',
+              boundaryColor: '#9da3ad',
+              textColor: '#b5bcc5',
+              valueColor: '#e4e7eb',
+              indicatorColor: '#e9ac59',
+              indicatorOutline: '#191c20',
+            },
+            cursor: { pointColor: '#a0bce5', impedanceColor: '#a0bce5' },
+          },
+        }
+      : {}),
+  };
+}
 
 const smith = new Smith({
-  appearance: { theme: 'dark' },
+  appearance: demoAppearance('dark'),
   interaction: { zoom: true, cursor: true },
   peripheralScales: { visible: true },
   grid: { detail: 'detailed' },
 });
 smith.draw('#smith');
-const scales = new SmithScales({ theme: 'dark' });
+const scales = new SmithScales(demoAppearance('dark'));
 scales.draw('#smith-scales');
 
 element<HTMLSelectElement>('theme').addEventListener('change', (event) => {
   const theme = (event.target as HTMLSelectElement).value as SmithAppearance['theme'];
-  const appearance: SmithAppearance = { theme };
+  const appearance = demoAppearance(theme);
   smith.setOptions({ appearance });
   scales.setAppearance(appearance);
   document.documentElement.dataset.theme = theme;

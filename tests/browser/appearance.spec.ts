@@ -231,21 +231,24 @@ test('demo theme switch updates chart and scales without losing marker selection
   await page.getByRole('button', { name: 'Load sample trace', exact: true }).click();
   await page.getByRole('tab', { name: 'Marker', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('header #theme')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Chart settings', exact: true })).not.toBeVisible();
   const selected = await page.locator('#marker-select').inputValue();
-  await page.getByRole('button', { name: 'Chart settings', exact: true }).click();
   await page.getByLabel('Theme', { exact: true }).selectOption('dark');
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
-  await expect(page.locator('#smith svg')).toHaveCSS('background-color', 'rgb(15, 23, 42)');
+  await expect(page.locator('#smith svg')).toHaveCSS('background-color', 'rgb(25, 28, 32)');
   await expect(page.locator('#smith-scales .radial-scales')).toHaveCSS(
     'background-color',
-    'rgb(15, 23, 42)',
+    'rgb(25, 28, 32)',
   );
   await expect(page.locator('#marker-select')).toHaveValue(selected);
   await page.getByRole('button', { name: 'Focus on chart' }).click();
   await page.keyboard.press('End');
   await expect(page.locator('#marker-readout')).toContainText('2 GHz');
-  await page.getByRole('button', { name: 'Chart settings', exact: true }).click();
   await page.getByLabel('Theme', { exact: true }).selectOption('light');
-  await page.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(page.locator('#smith svg')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('#marker-select')).toHaveValue(selected);
+  await page.getByLabel('Theme', { exact: true }).selectOption('dark');
+  await expect(page.locator('#smith svg')).toHaveCSS('background-color', 'rgb(25, 28, 32)');
+  await expect(page.locator('#marker-readout')).toContainText('2 GHz');
 });
