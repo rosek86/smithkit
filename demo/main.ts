@@ -23,26 +23,63 @@ function element<T extends HTMLElement>(id: string): T {
 
 const settingsDialog = element<HTMLDialogElement>('chart-settings');
 const settingsButton = element<HTMLButtonElement>('open-settings');
+const desktopSettings = window.matchMedia('(min-width: 1000px)');
+const chartPanel = element('smith').closest<HTMLElement>('.chart-panel')!;
+const scalesPanel = element('parameter-panel').closest<HTMLElement>('.scales-panel')!;
+const settingsBackdrop = element('settings-backdrop');
+const settingsBackground = document.querySelectorAll<HTMLElement>(
+  'main > header, main > .toolbar, .scales-panel, .workspace > aside, main > footer',
+);
+
 function positionSettingsDialog(): void {
-  if (!settingsDialog.open || !window.matchMedia('(min-width: 1000px)').matches) {
+  if (!settingsDialog.open || !desktopSettings.matches) {
     return;
   }
-  const anchor = element('parameter-panel').closest<HTMLElement>('.scales-panel')!;
-  const bounds = anchor.getBoundingClientRect();
-  // Align with the readout panel while reserving at least 320 px for settings on short screens.
-  const top = Math.max(16, Math.min(bounds.top, window.innerHeight - 336));
-  settingsDialog.style.setProperty('--settings-top', `${top}px`);
-  settingsDialog.style.setProperty('--settings-left', `${bounds.left}px`);
-  settingsDialog.style.setProperty('--settings-width', `${bounds.width}px`);
+  const chartBounds = chartPanel.getBoundingClientRect();
+  const scalesBounds = scalesPanel.getBoundingClientRect();
+  settingsDialog.style.setProperty('--settings-top', `${chartBounds.top}px`);
+  settingsDialog.style.setProperty('--settings-left', `${scalesBounds.left}px`);
+  settingsDialog.style.setProperty('--settings-width', `${scalesBounds.width}px`);
+  settingsDialog.style.setProperty('--settings-height', `${chartBounds.height}px`);
 }
-settingsButton.addEventListener('click', () => {
-  settingsDialog.showModal();
+
+function setDesktopSettingsActive(active: boolean): void {
+  document.body.classList.toggle('settings-active', active);
+  settingsBackdrop.hidden = !active;
+  for (const region of settingsBackground) {
+    region.inert = active;
+  }
+}
+
+function showSettings(): void {
+  setDesktopSettingsActive(desktopSettings.matches);
+  if (desktopSettings.matches) {
+    // A non-modal dialog leaves the chart available for zoom and marker interaction.
+    settingsDialog.show();
+  } else {
+    settingsDialog.showModal();
+  }
   positionSettingsDialog();
-});
+}
+
+settingsButton.addEventListener('click', showSettings);
 window.addEventListener('resize', positionSettingsDialog);
 window.addEventListener('scroll', positionSettingsDialog, { passive: true });
+const settingsResizeObserver = new ResizeObserver(positionSettingsDialog);
+settingsResizeObserver.observe(chartPanel);
+settingsResizeObserver.observe(scalesPanel);
+desktopSettings.addEventListener('change', () => {
+  if (settingsDialog.open) {
+    settingsDialog.close();
+    showSettings();
+  }
+});
+
 let settingsPressOutside = false;
 function outsideSettings(event: MouseEvent): boolean {
+  if (event.target === settingsBackdrop) {
+    return true;
+  }
   const bounds = settingsDialog.getBoundingClientRect();
   return (
     event.target === settingsDialog &&
@@ -52,20 +89,31 @@ function outsideSettings(event: MouseEvent): boolean {
       event.clientY > bounds.bottom)
   );
 }
-settingsDialog.addEventListener('pointerdown', (event) => {
-  settingsPressOutside = event.button === 0 && outsideSettings(event);
+document.addEventListener('pointerdown', (event) => {
+  settingsPressOutside = settingsDialog.open && event.button === 0 && outsideSettings(event);
 });
-settingsDialog.addEventListener('pointercancel', () => {
+document.addEventListener('pointercancel', () => {
   settingsPressOutside = false;
 });
-settingsDialog.addEventListener('click', (event) => {
+document.addEventListener('click', (event) => {
   if (settingsPressOutside && outsideSettings(event)) {
     settingsDialog.close();
   }
   settingsPressOutside = false;
 });
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && settingsDialog.open && desktopSettings.matches) {
+    event.preventDefault();
+    settingsDialog.close();
+  }
+});
 settingsDialog.addEventListener('close', () => {
+  // A breakpoint change closes and immediately reopens the dialog in its new mode.
+  if (settingsDialog.open) {
+    return;
+  }
   settingsPressOutside = false;
+  setDesktopSettingsActive(false);
   settingsButton.focus({ preventScroll: true });
 });
 
