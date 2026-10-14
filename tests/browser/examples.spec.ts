@@ -276,12 +276,11 @@ test('large-trace example switches to one million samples, compares detail and r
   await page.screenshot({ path: 'test-results/examples-large-trace.png', fullPage: true });
 });
 
-test('Touchstone example downloads the selected, renormalized reflection in s1p format', async ({
+test('Touchstone example preserves the file reference when displaying and exporting a selected reflection', async ({
   page,
 }) => {
   await page.goto('examples/touchstone/index.html');
   await page.getByLabel('Reflection parameter').selectOption('S22');
-  await page.getByLabel('Trace reference').selectOption('75');
   await expect(page.locator('#status')).toHaveText('S22: 3 packed samples at 75 Ω.');
   const downloading = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download .s1p' }).click();
@@ -293,7 +292,7 @@ test('Touchstone example downloads the selected, renormalized reflection in s1p 
   expect(lines).toHaveLength(4);
   const [frequency, re, im] = lines[2].split(' ').map(Number);
   expect(frequency).toBe(1.5e9);
-  expect(re).toBeCloseTo((0.1 - 0.2) / (1 - 0.2 * 0.1), 14);
+  expect(re).toBe(0.1);
   expect(im).toBe(0);
   await page.screenshot({ path: 'test-results/examples-touchstone.png', fullPage: true });
 });
