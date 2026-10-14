@@ -66,13 +66,24 @@ archive path after `--`, so release checks can reuse exactly the archive being s
 
 From a clean committed checkout, run `npm run prepare:release` for all source checks,
 all three demo browser suites, package-consumer checks, and the standalone example. It
-writes `artifacts/smithkit-0.5.0.tgz` and `artifacts/release-manifest.json`, containing
+writes `artifacts/smithkit-<version>.tgz` and `artifacts/release-manifest.json`, containing
 the commit, SHA-256, npm integrity, and archive sizes. Nothing is published.
 Install all three engines first with `npx playwright install chromium webkit firefox`.
 `PLAYWRIGHT_CHANNEL=chrome` can select installed Chrome for local checks; the script
 clears that override when running WebKit and Firefox.
 
-CI and the release workflow use this same command. The release workflow also has
+CI and the release workflow use `.github/workflows/verify.yml` to run the same
+checks in parallel: build and pack once, then run a three-browser matrix alongside
+package and standalone-consumer verification. Each job uses the recorded source
+commit and downloads the same build artifact. Only after all jobs succeed does the
+workflow write the release manifest and upload the verified package (and Pages
+artifact for CI). The top-level `check` status remains the merge/deployment gate.
+
+A new push automatically cancels older runs of the same PR. Runs on `main` and npm
+release workflows are not cancelled by newer runs. The local `prepare:release`
+command retains its sequential execution and remains a complete verification path.
+
+The release workflow also has
 a manual dispatch: leave `release_tag` empty to verify only, or set an existing
 release tag on the default branch to retry its publication with the current workflow.
 

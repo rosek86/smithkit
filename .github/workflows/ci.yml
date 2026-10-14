@@ -11,37 +11,25 @@ permissions:
 
 concurrency:
   group: smith-chart-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  verification:
+    uses: ./.github/workflows/verify.yml
+    with:
+      package-artifact: smithkit-package
+      upload-pages: true
+
   check:
+    needs: verification
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 2
     steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit firefox
-      - run: npm run prepare:release
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist/demo/
-      - uses: actions/upload-artifact@v7
-        with:
-          name: smithkit-package
-          path: artifacts/
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v7
-        if: failure()
-        with:
-          name: browser-test-results
-          path: test-results/
-          retention-days: 7
+      - name: Require all verification jobs to pass
+        env:
+          VERIFICATION_RESULT: ${{ needs.verification.result }}
+        run: test "$VERIFICATION_RESULT" = success
 
   deploy:
     needs: check
