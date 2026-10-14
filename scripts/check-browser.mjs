@@ -102,7 +102,10 @@ try {
   report.browser = created.capabilities.browserName;
   report.browserVersion = created.capabilities.browserVersion;
   report.platform = created.capabilities.platformName;
-  if (report.browserVersion !== values.version || report.browser !== values.browser) {
+  if (
+    report.browserVersion !== values.version ||
+    report.browser.toLowerCase() !== values.browser.toLowerCase()
+  ) {
     throw new Error(
       `Wrong browser: ${report.browser} ${report.browserVersion}; expected ${values.browser} ${values.version}.`,
     );
