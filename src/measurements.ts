@@ -5,15 +5,26 @@ export type TraceRenderMode = 'points' | 'line' | 'both';
 
 export interface TraceStyle {
   mode: TraceRenderMode;
-  /** Non-scaling SVG stroke width in CSS pixels. Default: 2. */
-  lineWidth: number;
-  /** Point radius in CSS pixels; remains constant under chart zoom and container resize. Default: 2. */
-  pointRadius: number;
-  /** Maximum additional line simplification error in CSS pixels. Zero disables it (default). */
-  lineTolerancePx: number;
+  line: {
+    /** Non-scaling SVG stroke width in CSS pixels. Default: 2. */
+    width: number;
+    /** Maximum additional line simplification error in CSS pixels. Zero disables it (default). */
+    tolerancePx: number;
+  };
+  point: {
+    /** Radius in CSS pixels; constant under chart zoom and container resize. Default: 2. */
+    radius: number;
+  };
 }
 
-export interface TraceOptions extends Partial<TraceStyle> {
+/** A partial style patch; omitted nested properties retain their current values. */
+export interface TraceStyleOptions {
+  mode?: TraceRenderMode;
+  line?: Partial<TraceStyle['line']>;
+  point?: Partial<TraceStyle['point']>;
+}
+
+export interface TraceOptions extends TraceStyleOptions {
   name?: string;
   /** A solid CSS color, such as '#2563eb' or 'orange'. */
   color?: string;
@@ -36,6 +47,8 @@ export interface MarkerInfo {
 }
 
 export interface TraceInfo extends Readonly<TraceStyle> {
+  readonly line: Readonly<TraceStyle['line']>;
+  readonly point: Readonly<TraceStyle['point']>;
   readonly id: string;
   readonly name: string;
   readonly color: string;

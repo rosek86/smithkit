@@ -48,7 +48,7 @@ function create(config) {
   const ids = [];
   const add = timed(() =>
     inputs.forEach((input) =>
-      ids.push(chart.addTrace(input, { mode: 'line', lineTolerancePx: config.tolerance })),
+      ids.push(chart.addTrace(input, { mode: 'line', line: { tolerancePx: config.tolerance } })),
     ),
   );
   const marker = chart.addMarker(ids[0]);

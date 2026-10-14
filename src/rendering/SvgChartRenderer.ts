@@ -36,7 +36,7 @@ import { SmithPeripheralScales } from '../scales/SmithPeripheralScales.js';
 import { GridLayerControl } from '../grid/GridLayerControl.js';
 import { CircleLayerControl } from '../grid/CircleLayerControl.js';
 import type { ChartLayers, PeripheralScales } from '../layers.js';
-import type { TraceStyle } from '../measurements.js';
+import type { TraceStyleOptions } from '../measurements.js';
 
 interface Scalers {
   default: SmithScaler;
@@ -463,7 +463,7 @@ export class SvgChartRenderer {
   public createTrace(
     values: TraceInput,
     color: string,
-    style: Partial<TraceStyle>,
+    style: TraceStyleOptions,
     onMarkerDrag: (marker: SmithMarker, dragging: boolean) => void,
   ): SmithData {
     this.assertAlive();

@@ -94,6 +94,8 @@ chart.setOptions({ interaction: { cursor: false }, grid: { layers: { resistance:
 chart.setOptions({ cursorEnabled: true });
 new Smith();
 new Smith({});
+new SmithScales('#scales');
+new SmithScales(document.createElement('div'), { theme: 'dark' });
 new Smith('#chart');
 new Smith(document.createElement('div'), configuration);
 new Smith('#chart', { grid: { style: { text: { color: 'red' } } }, appearance: { overrides: { grid: { text: { fontSize: 10 } } } } });
@@ -123,7 +125,11 @@ new Smith({ circles: {q: { detail: 'basic' }} });
 chart.setGridDetail('sparse');
 // @ts-expect-error Circle values are numeric.
 chart.layers.vswr.setValues(['2']);
-const options: TraceOptions = { name: 'Consumer', color: '#123456', visible: true, mode: 'both', lineWidth: 2, pointRadius: 3, lineTolerancePx: 0.5 };
+// @ts-expect-error Flat trace style keys were removed in 0.7.
+chart.setTraceOptions('trace', { lineWidth: 2 });
+// @ts-expect-error Trace snapshots have readonly nested style fields.
+chart.getTraces()[0].point.radius = 2;
+const options: TraceOptions = { name: 'Consumer', color: '#123456', visible: true, mode: 'both', line: { width: 2, tolerancePx: 0.5 }, point: { radius: 3 } };
 const traceId: string = chart.addTrace(samples, options);
 import type { TraceInput, TraceTuple } from 'smithkit';
 const tuples: readonly TraceTuple[] = [[1e9, 0.1, -0.2]];
@@ -141,11 +147,11 @@ chart.addTrace([[1e9, 0.1]]);
 chart.addTrace([{ frequencyHz: 1, reflectionCoefficient: [0, 0] }, [1, 0, 0]]);
 // @ts-expect-error Only Float64Array is a supported packed numeric buffer.
 chart.addTrace(new Float32Array([1e9, 0.1, 0.2]));
-chart.setTraceOptions(traceId, { lineTolerancePx: 0 });
+chart.setTraceOptions(traceId, { line: { tolerancePx: 0 } });
 chart.toSvg({ lineDetail: 'full' });
 chart.toPng({ lineDetail: 'view' });
 // @ts-expect-error Tolerance is a numeric CSS pixel value.
-chart.setTraceOptions(traceId, { lineTolerancePx: 'auto' });
+chart.setTraceOptions(traceId, { line: { tolerancePx: 'auto' } });
 // @ts-expect-error Only full and view line detail are supported.
 chart.toSvg({ lineDetail: 'fast' });
 const traces: TraceInfo[] = chart.getTraces();

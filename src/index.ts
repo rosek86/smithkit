@@ -11,6 +11,7 @@ export type {
   TraceUpdateOptions,
   MarkerSelectionStrategy,
   TraceStyle,
+  TraceStyleOptions,
   TraceRenderMode,
   TraceInfo,
   MarkerInfo,

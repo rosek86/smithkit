@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased — next minor
+## 0.7.0 — 2026-10-14
 
-- **Breaking:** group grid/circle styles and appearance overrides by visual element (`line`, `text`, `point`, `focus`, and scale subgroups). Replace flat style keys, preserve nested partial updates, and allow independent Q/VSWR theme widths. See the [migration guide](docs/migration-next.md).
+- **Breaking:** group trace style options and snapshots into `line: { width, tolerancePx }` and `point: { radius }`. Add `TraceStyleOptions` for nested partial patches, reject unknown keys, and return detached readonly style snapshots.
+- Allow `new SmithScales(target, appearance?)` to configure and mount independent parameter scales in one call, while preserving deferred mounting.
+- Refresh the demo and example styling, add syntax highlighting and formatted example source, and streamline CI with shared build artifacts and parallel checks.
+
+- **Breaking:** group grid/circle styles and appearance overrides by visual element (`line`, `text`, `point`, `focus`, and scale subgroups). Replace flat style keys, preserve nested partial updates, and allow independent Q/VSWR theme widths. See the [migration guide](docs/migration-0.7.md).
 - Allow `new Smith(target, options?)` to configure and mount a chart with one call, accepting the same CSS selector or HTMLElement as `draw()`. Keep deferred mounting with `new Smith(options)`.
 
 ## 0.6.0 — 2026-10-14

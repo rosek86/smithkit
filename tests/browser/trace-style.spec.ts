@@ -1,6 +1,78 @@
 import { expect, test } from '@playwright/test';
 import { loadLibrary } from './library';
 
+test('nested trace styles patch individual fields, copy snapshots, and reject invalid changes atomically', async ({
+  page,
+}) => {
+  await page.setContent('<div id="chart" style="width:500px;height:500px"></div>');
+  await loadLibrary(page);
+  const result = await page.evaluate(() => {
+    const chart = new window.SmithTest.Smith('#chart');
+    const options = {
+      mode: 'both' as const,
+      line: { width: 3, tolerancePx: 0.5 },
+      point: { radius: 4 },
+    };
+    const id = chart.addTrace(
+      [
+        [1e9, 0, 0],
+        [2e9, 0.3, 0.2],
+      ],
+      options,
+    );
+    options.line.width = 99;
+    chart.setTraceOptions(id, { line: { width: 5 } });
+    chart.setTraceOptions(id, { line: { tolerancePx: undefined }, point: {} });
+    const snapshot = chart.getTraces()[0];
+    (snapshot.line as { width: number }).width = 77;
+    (snapshot.point as { radius: number }).radius = 77;
+    const before = chart.getTraces()[0];
+    const beforeSvg = document.querySelector('svg')!.outerHTML;
+    const errors: string[] = [];
+    for (const bad of [
+      { name: 'Changed', line: { width: 0 } },
+      { line: { tolerancePx: -1 } },
+      { point: { radius: NaN } },
+      { line: null },
+      { point: [] },
+      { line: { unknown: 2 } },
+      { point: { radius: '3' } },
+      { lineWidth: 3 },
+      { lineTolerancePx: 1 },
+      { pointRadius: 3 },
+    ]) {
+      try {
+        chart.setTraceOptions(id, bad as unknown as import('../../src').TraceOptions);
+      } catch (error) {
+        errors.push((error as Error).name);
+      }
+    }
+    const after = chart.getTraces()[0];
+    const unchangedSvg = beforeSvg === document.querySelector('svg')!.outerHTML;
+    chart.destroy();
+    return { before, after, errors, unchangedSvg };
+  });
+  expect(result.before).toMatchObject({
+    mode: 'both',
+    line: { width: 5, tolerancePx: 0.5 },
+    point: { radius: 4 },
+  });
+  expect(result.after).toEqual(result.before);
+  expect(result.unchangedSvg).toBe(true);
+  expect(result.errors).toEqual([
+    'RangeError',
+    'RangeError',
+    'RangeError',
+    'TypeError',
+    'TypeError',
+    'TypeError',
+    'RangeError',
+    'TypeError',
+    'TypeError',
+    'TypeError',
+  ]);
+});
+
 test('trace styles preserve samples, markers, visibility, and ordering across changes', async ({
   page,
 }) => {
@@ -18,7 +90,7 @@ test('trace styles preserve samples, markers, visibility, and ordering across ch
       { frequencyHz: 1, reflectionCoefficient: [0, 0.5] },
       { frequencyHz: 2, reflectionCoefficient: [0, 0] },
     ];
-    const id = chart.addTrace(samples, { mode: 'line', lineWidth: 3, pointRadius: 4 });
+    const id = chart.addTrace(samples, { mode: 'line', line: { width: 3 }, point: { radius: 4 } });
     chart.addMarker(id);
     const marker = chart.getTraces()[0].markers[0].id;
     const count = () => ({
@@ -41,7 +113,11 @@ test('trace styles preserve samples, markers, visibility, and ordering across ch
     const points = count();
     const before = chart.getTraces()[0].color;
     let invalid = 0;
-    for (const options of [{ lineWidth: NaN }, { pointRadius: 0 }, { mode: 'invalid' }]) {
+    for (const options of [
+      { line: { width: NaN } },
+      { point: { radius: 0 } },
+      { mode: 'invalid' },
+    ]) {
       try {
         chart.setTraceOptions(id, { color: 'red', ...options } as import('../../src').TraceOptions);
       } catch {
@@ -65,7 +141,11 @@ test('trace styles preserve samples, markers, visibility, and ordering across ch
       width,
       color,
       hidden,
-      style: { mode: style.mode, lineWidth: style.lineWidth, pointRadius: style.pointRadius },
+      style: {
+        mode: style.mode,
+        line: { width: style.line.width },
+        point: { radius: style.point.radius },
+      },
       stable,
       invalid,
       atomic,
@@ -80,7 +160,7 @@ test('trace styles preserve samples, markers, visibility, and ordering across ch
     width: '3',
     color: '#123456',
     hidden: 'none',
-    style: { mode: 'both', lineWidth: 3, pointRadius: 4 },
+    style: { mode: 'both', line: { width: 3 }, point: { radius: 4 } },
     stable: 2,
     invalid: 3,
     atomic: true,

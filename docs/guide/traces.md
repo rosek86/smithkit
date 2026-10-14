@@ -67,7 +67,7 @@ Invalid replacements leave data, markers, and rendering unchanged.
 For more than 5,000 samples, point rendering groups overlapping points into screen
 cells and skips offscreen points; markers still select from the full data. Lines
 retain every sample by default; opt into pixel-based simplification with
-`lineTolerancePx` as described under [trace appearance](#trace-appearance).
+`line.tolerancePx` as described under [trace appearance](#trace-appearance).
 Sorted ascending frequencies accelerate frequency selection; unsorted inputs remain
 supported without reordering. There is no interpolation or reduction of the stored measurements.
 
@@ -145,10 +145,20 @@ after destruction throw; trace/marker lookups return empty or missing results.
 
 ## Trace appearance
 
-Pass `mode: 'points' | 'line' | 'both'`, `lineWidth`, `pointRadius`, and `lineTolerancePx` to
+Pass `mode: 'points' | 'line' | 'both'`, `line.width`, `point.radius`, and `line.tolerancePx` to
 `addTrace` or `setTraceOptions`. Defaults are points, 2 px line width, and 2 px point radius. Both sizes are
 CSS pixels and remain constant under chart zoom and container resize. Widths and radii must be positive and finite.
-`getTraces()` includes the current style.
+`getTraces()` includes the current style in detached, readonly nested objects.
+Updates merge individual properties, preserving omitted line and point settings.
+
+```ts
+chart.setTraceOptions(traceId, {
+  mode: 'both',
+  line: { width: 3, tolerancePx: 0.5 },
+  point: { radius: 4 },
+});
+chart.setTraceOptions(traceId, { line: { width: 2 } }); // Keeps tolerance and radius.
+```
 
 By default, lines connect all samples in input order, without smoothing or frequency sorting.
 A line-only trace creates one SVG path and no sample circles, suitable for dense
@@ -160,11 +170,11 @@ snapping, readouts, and comparisons.
 Styles do not change marker identity or layer ordering. Hidden traces retain their style after sample replacement.
 The demo exposes the same controls per trace.
 
-For dense lines, opt into `lineTolerancePx` (finite, non-negative; default `0` disables
+For dense lines, opt into `line.tolerancePx` (finite, non-negative; default `0` disables
 simplification):
 
 ```ts
-chart.setTraceOptions(traceId, { mode: 'line', lineTolerancePx: 0.5 });
+chart.setTraceOptions(traceId, { mode: 'line', line: { tolerancePx: 0.5 } });
 ```
 
 The tolerance bounds additional geometric deviation in **CSS pixels**, accounting for

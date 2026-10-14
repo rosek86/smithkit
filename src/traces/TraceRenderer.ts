@@ -1,7 +1,7 @@
 import { path, pathRound } from 'd3';
 import { SmithGroup } from '../svg/SmithGroup.js';
 import { SmithScaler } from '../svg/SmithScaler.js';
-import type { TraceStyle } from '../measurements.js';
+import type { TraceStyle, TraceStyleOptions } from '../measurements.js';
 import { TraceLineDetail } from './TraceLineDetail.js';
 import { TraceBuffer } from './TraceBuffer.js';
 
@@ -26,13 +26,12 @@ export class TraceRenderer {
     private transform: TraceTransform,
     container: SmithGroup,
     private scaler: SmithScaler,
-    style: Partial<TraceStyle> = {},
+    style: TraceStyleOptions = {},
   ) {
     this.style = {
       mode: style.mode ?? 'points',
-      lineWidth: style.lineWidth ?? 2,
-      pointRadius: style.pointRadius ?? 2,
-      lineTolerancePx: style.lineTolerancePx ?? 0,
+      line: { width: style.line?.width ?? 2, tolerancePx: style.line?.tolerancePx ?? 0 },
+      point: { radius: style.point?.radius ?? 2 },
     };
     this.group = this.drawTrace(data).attr('pointer-events', 'none');
     container.append(this.group);
@@ -53,7 +52,7 @@ export class TraceRenderer {
         .attr('d', this.linePath(this.lineIndices))
         .attr('fill', 'none')
         .attr('stroke', this.color)
-        .attr('stroke-width', this.style.lineWidth)
+        .attr('stroke-width', this.style.line.width)
         .attr('vector-effect', 'non-scaling-stroke')
         .attr('stroke-linejoin', 'round')
         .attr('stroke-linecap', 'round');
@@ -65,7 +64,7 @@ export class TraceRenderer {
   }
 
   private selectLineIndices(): Uint32Array | undefined {
-    if (this.style.lineTolerancePx === 0) {
+    if (this.style.line.tolerancePx === 0) {
       return;
     }
     this.lineDetail ??= new TraceLineDetail(this.data);
@@ -76,7 +75,7 @@ export class TraceRenderer {
       ) *
       this.transform.k *
       this.viewportScale;
-    return this.lineDetail.select(this.style.lineTolerancePx / unitsToPixels);
+    return this.lineDetail.select(this.style.line.tolerancePx / unitsToPixels);
   }
 
   private linePath(indices?: Uint32Array): string {
@@ -123,9 +122,9 @@ export class TraceRenderer {
   private renderPoints(group: SmithGroup, data: TraceBuffer): void {
     const visible: number[] = [];
     const cells = new Set<number>();
-    const cellSize = Math.max(0.5, this.style.pointRadius) / this.viewportScale;
+    const cellSize = Math.max(0.5, this.style.point.radius) / this.viewportScale;
     const extent = this.scaler.x(1);
-    const margin = this.style.pointRadius / this.viewportScale;
+    const margin = this.style.point.radius / this.viewportScale;
     const firstCell = Math.floor(-margin / cellSize);
     const columns = Math.floor((extent + margin) / cellSize) - firstCell + 1;
     for (let i = 0; i < data.length; i++) {
@@ -149,7 +148,7 @@ export class TraceRenderer {
       .join('circle')
       .attr('cx', (index) => this.scaler.x(data.real(index)))
       .attr('cy', (index) => this.scaler.y(data.imaginary(index)))
-      .attr('r', this.style.pointRadius / (this.transform.k * this.viewportScale));
+      .attr('r', this.style.point.radius / (this.transform.k * this.viewportScale));
   }
 
   public setViewportScale(scale: number): void {
@@ -176,7 +175,7 @@ export class TraceRenderer {
     } else {
       this.group.Element.selectAll('circle').attr(
         'r',
-        this.style.pointRadius / (k * this.viewportScale),
+        this.style.point.radius / (k * this.viewportScale),
       );
     }
   }
@@ -188,21 +187,23 @@ export class TraceRenderer {
   }
 
   public get Style(): TraceStyle {
-    return { ...this.style };
+    return { ...this.style, line: { ...this.style.line }, point: { ...this.style.point } };
   }
 
-  public setStyle(options: Partial<TraceStyle>): void {
+  public setStyle(options: TraceStyleOptions): void {
     const next = {
       mode: options.mode ?? this.style.mode,
-      lineWidth: options.lineWidth ?? this.style.lineWidth,
-      pointRadius: options.pointRadius ?? this.style.pointRadius,
-      lineTolerancePx: options.lineTolerancePx ?? this.style.lineTolerancePx,
+      line: {
+        width: options.line?.width ?? this.style.line.width,
+        tolerancePx: options.line?.tolerancePx ?? this.style.line.tolerancePx,
+      },
+      point: { radius: options.point?.radius ?? this.style.point.radius },
     };
     if (
       next.mode === this.style.mode &&
-      next.lineWidth === this.style.lineWidth &&
-      next.pointRadius === this.style.pointRadius &&
-      next.lineTolerancePx === this.style.lineTolerancePx
+      next.line.width === this.style.line.width &&
+      next.point.radius === this.style.point.radius &&
+      next.line.tolerancePx === this.style.line.tolerancePx
     ) {
       return;
     }
@@ -211,7 +212,7 @@ export class TraceRenderer {
     if (modeChanged) {
       this.redraw();
     } else {
-      this.group.Element.select('.trace-line').attr('stroke-width', next.lineWidth);
+      this.group.Element.select('.trace-line').attr('stroke-width', next.line.width);
       this.zoomDataPoints();
     }
   }

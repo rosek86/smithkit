@@ -61,7 +61,7 @@ try {
                 const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
                 let id;
                 const addMs = measure(() => {
-                  id = chart.addTrace(input, { mode, lineTolerancePx });
+                  id = chart.addTrace(input, { mode, line: { tolerancePx: lineTolerancePx } });
                 });
                 const marker = chart.addMarker(id);
                 const updateMs = measure(() => chart.updateTrace(id, input));
