@@ -96,7 +96,10 @@ document.addEventListener('pointercancel', () => {
   settingsPressOutside = false;
 });
 document.addEventListener('click', (event) => {
-  if (settingsPressOutside && outsideSettings(event)) {
+  // The native backdrop button handles touch and keyboard activation itself.
+  // Only the modal dialog backdrop needs a separate outside-press guard.
+  const backdropActivation = event.target === settingsBackdrop;
+  if ((settingsPressOutside || backdropActivation) && outsideSettings(event)) {
     settingsDialog.close();
   }
   settingsPressOutside = false;

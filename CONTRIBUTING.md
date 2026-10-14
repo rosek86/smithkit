@@ -292,7 +292,7 @@ It generates reference pages and searchable guides from `docs/guide/` in
 `public/api/`. That generated directory is ignored by Git and excluded from npm.
 Do not edit the generated HTML or include private implementation classes.
 
-`npm run dev` generates the documentation before starting Vite; open `/api/` or
+`npm run dev` generates the documentation before starting Vite; open `/api/index.html` or
 use the demo navigation. After editing guides or API comments, rerun
 `npm run build:docs` and refresh. `npm run build:demo` regenerates and copies the
 site to `dist/demo/api/`, so the existing Pages workflow publishes it with the demo.
