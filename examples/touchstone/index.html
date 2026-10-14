@@ -15,7 +15,7 @@
       <header>
         <p class="eyebrow">SMITHKIT EXAMPLES</p>
         <h1>Touchstone</h1>
-        <p>Extract S11 or S22, renormalize the reflection trace, and download a one-port file.</p>
+        <p>Read S11 or S22 using the file’s reference impedance and download a one-port file.</p>
       </header>
       <section class="preview" aria-label="Example preview">
         <div class="controls">
@@ -24,17 +24,12 @@
             <option>S11</option>
             <option>S22</option>
           </select>
-          <label for="reference">Trace reference</label>
-          <select id="reference">
-            <option value="50">50 Ω</option>
-            <option value="75">75 Ω</option>
-          </select>
           <button id="download" type="button">Download .s1p</button>
         </div>
         <div id="chart" aria-label="Smith chart"></div>
         <p class="hint">
-          The other port remains terminated in the source file’s 50 Ω reference. This is one-port
-          renormalization, not a conversion of the full two-port network.
+          The chart uses the reference impedance from the file header. The selected reflection is
+          displayed and exported without conversion.
         </p>
         <p id="status" role="status"></p>
       </section>

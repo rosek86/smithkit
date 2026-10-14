@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Simplify the Touchstone integration example to use the file reference for rendering and export. Remove its reference selector and renormalization, and clarify the basic import flow in the guide. The public API is unchanged.
+
 ## 0.7.0 — 2026-10-14
 
 - **Breaking:** group trace style options and snapshots into `line: { width, tolerancePx }` and `point: { radius }`. Add `TraceStyleOptions` for nested partial patches, reject unknown keys, and return detached readonly style snapshots.

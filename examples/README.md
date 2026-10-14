@@ -9,7 +9,7 @@ the TypeScript it executes, rather than a separately maintained snippet.
 | [Static chart](static/main.ts)                      | constructor options, `draw`, grid detail, traces                 |
 | [External marker controls](markers/main.ts)         | stable marker IDs, `onEvent`, sample selection, focus            |
 | [Themes and overrides](appearance/main.ts)          | `setOptions`, presets, overrides                                 |
-| [Touchstone](touchstone/main.ts)                    | S11/S22 packed import, one-port renormalization, `.s1p` download |
+| [Touchstone](touchstone/main.ts)                    | S11/S22 packed import, file reference, `.s1p` download           |
 | [Report export](export/main.ts)                     | SVG/PNG, image size, background, marker legends                  |
 | [Mount, update, and destroy](basic/main.ts)         | subscriptions, data replacement, resize, cleanup                 |
 | [React component](react/SmithChart.tsx)             | effects, immutable props, events, StrictMode cleanup             |
