@@ -96,7 +96,8 @@ document.addEventListener('pointercancel', () => {
   settingsPressOutside = false;
 });
 document.addEventListener('click', (event) => {
-  if (settingsPressOutside && outsideSettings(event)) {
+  const backdropActivation = event.target === settingsBackdrop && event.detail === 0;
+  if ((settingsPressOutside || backdropActivation) && outsideSettings(event)) {
     settingsDialog.close();
   }
   settingsPressOutside = false;
