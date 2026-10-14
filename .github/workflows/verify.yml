@@ -157,7 +157,7 @@ jobs:
           assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
           const archives = readdirSync('artifacts').filter(name => name.endsWith('.tgz'));
           assert.deepEqual(archives, [`smithkit-${manifest.version}.tgz`]);
-          const archive = `artifacts/${archives[0]}`;
+          const archive = `./artifacts/${archives[0]}`;
           const [packed] = JSON.parse(execFileSync('npm', ['pack', archive, '--dry-run', '--ignore-scripts', '--json'], { encoding: 'utf8' }));
           assert.equal(packed.name, manifest.name);
           assert.equal(packed.version, manifest.version);
