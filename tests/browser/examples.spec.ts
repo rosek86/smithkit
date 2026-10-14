@@ -1,6 +1,44 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('source highlighting preserves copyable TS, TSX, and HTML in the API dark palette', async ({
+  page,
+}) => {
+  for (const [slug, file] of [
+    ['static', 'main.ts'],
+    ['basic', 'main.ts'],
+    ['react', 'SmithChart.tsx'],
+    ['angular', 'SmithChartComponent.ts'],
+  ]) {
+    await page.goto(`examples/${slug}/index.html`);
+    const code = page.locator('#source');
+    await expect(code.locator('span').first()).toBeAttached();
+    expect(await code.textContent()).toBe(await readFile(`examples/${slug}/${file}`, 'utf8'));
+    await expect(
+      code
+        .locator('span')
+        .filter({ hasText: /^import$/ })
+        .first(),
+    ).toHaveCSS('color', 'rgb(197, 134, 192)');
+    await expect(code.locator('..')).toHaveCSS('background-color', 'rgb(30, 30, 30)');
+    if (slug !== 'basic') {
+      await page.locator('details summary').click();
+      await expect(page.locator('#markup span').first()).toBeVisible();
+      await expect(page.locator('#markup :not(span)')).toHaveCount(0);
+      if (slug === 'static') {
+        await expect(page.locator('#markup')).toContainText('<div id="chart"');
+      } else {
+        const extension = slug === 'react' ? 'tsx' : 'ts';
+        const application = await readFile(`examples/${slug}/main.${extension}`, 'utf8');
+        const data = await readFile('examples/framework-data.ts', 'utf8');
+        expect(await page.locator('#markup').textContent()).toBe(
+          application + '\n\n// framework-data.ts\n' + data,
+        );
+      }
+    }
+  }
+});
+
 test('demo links to a gallery with runnable examples and executable source', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));

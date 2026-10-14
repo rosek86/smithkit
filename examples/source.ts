@@ -1,8 +1,9 @@
 import './style.css';
+import { showCode } from './basic/highlight';
 
 /** Display the exact executed source and the required host markup. */
 export function showSource(source: string): void {
-  document.querySelector('#source')!.textContent = source;
+  void showCode('#source', source);
   const markup = document.querySelector('.preview')!.cloneNode(true) as HTMLElement;
   const chart = markup.querySelector('#chart')!;
   chart.replaceChildren();
@@ -11,5 +12,5 @@ export function showSource(source: string): void {
   if (output) {
     output.replaceChildren();
   }
-  document.querySelector('#markup')!.textContent = markup.innerHTML.trim();
+  void showCode('#markup', markup.innerHTML.trim(), 'html');
 }
