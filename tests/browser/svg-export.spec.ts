@@ -4,6 +4,59 @@ import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { loadLibrary } from './library';
 
+test('omitted and empty SVG options share dimensions and output limits for charts and scales', async ({
+  page,
+}) => {
+  await page.setContent('<div id="chart" style="height:400px"></div><div id="scales"></div>');
+  await loadLibrary(page);
+  const results = await page.evaluate(() => {
+    const results = [];
+    for (const width of [600, 8192, 9000]) {
+      for (const kind of ['chart', 'scales'] as const) {
+        const host = document.getElementById(kind)!;
+        host.style.width = `${width}px`;
+        const component =
+          kind === 'chart'
+            ? new window.SmithTest.Smith({ grid: { detail: 'basic' } })
+            : new window.SmithTest.SmithScales();
+        component.draw(host);
+        const before = host.innerHTML;
+        const exportImage = (emptyOptions: boolean) => {
+          try {
+            const source = emptyOptions ? component.toSvg({}) : component.toSvg();
+            const svg = new DOMParser().parseFromString(source, 'image/svg+xml').documentElement;
+            return {
+              width: Number(svg.getAttribute('width')),
+              height: Number(svg.getAttribute('height')),
+              error: null,
+            };
+          } catch (error) {
+            return { error: error instanceof RangeError ? 'RangeError' : String(error) };
+          }
+        };
+        results.push({
+          kind,
+          width,
+          omitted: exportImage(false),
+          empty: exportImage(true),
+          unchanged: before === host.innerHTML,
+        });
+        component.destroy();
+      }
+    }
+    return results;
+  });
+  for (const result of results) {
+    expect(result.omitted, `${result.kind} at ${result.width}px`).toEqual(result.empty);
+    expect(result.unchanged).toBe(true);
+    if (result.width > 8192) {
+      expect(result.omitted.error).toBe('RangeError');
+    } else {
+      expect(result.omitted).toMatchObject({ width: result.width, error: null });
+    }
+  }
+});
+
 test('SVG export preserves the mounted chart, computed styles, zoom, and text references', async ({
   page,
 }) => {
@@ -199,7 +252,7 @@ test('scale export preserves responsive layout and current readings without chan
       const before = container.outerHTML;
       const exported = scales.toSvg();
       const doc = new DOMParser().parseFromString(exported, 'image/svg+xml');
-      const axes = [...doc.documentElement.querySelectorAll('svg')];
+      const axes = [...doc.documentElement.querySelectorAll('svg[data-scale]')];
       const expected = [...container.querySelectorAll('svg')].map((axis) => {
         const box = axis.getBoundingClientRect();
         return [box.x - bounds.x, box.y - bounds.y, box.width, box.height];
@@ -298,7 +351,7 @@ test('standalone SVG paints the same chart as the live view', async ({ page }, t
     route.fulfill({ contentType: 'image/svg+xml', body: svg }),
   );
   await standalone.goto('https://smithkit.test/chart.svg');
-  const exported = await standalone.locator('svg').screenshot();
+  const exported = await standalone.locator('svg').first().screenshot();
   await testInfo.attach('live', { body: original, contentType: 'image/png' });
   await testInfo.attach('export', { body: exported, contentType: 'image/png' });
   const reference = PNG.sync.read(original);
@@ -333,7 +386,7 @@ test('standalone SVG paints the same chart as the live view', async ({ page }, t
     await element.evaluate((node) => {
       node.style.visibility = 'hidden';
     });
-    const missingElement = compare(await standalone.locator('svg').screenshot());
+    const missingElement = compare(await standalone.locator('svg').first().screenshot());
     expect(missingElement.differentPixels, selector).toBeGreaterThanOrEqual(25);
     await element.evaluate((node, originalStyle) => {
       if (originalStyle === null) {

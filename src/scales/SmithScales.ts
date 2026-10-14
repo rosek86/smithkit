@@ -163,7 +163,7 @@ export class SmithScales {
   }
 
   /** Export mounted scales, optionally with a separate reading and its description. */
-  public toSvg(options?: ScaleImageExportOptions): string {
+  public toSvg(options: ScaleImageExportOptions = {}): string {
     this.assertAlive();
     const container = this.container.node()!;
     const style = getComputedStyle(container);
@@ -182,7 +182,7 @@ export class SmithScales {
           }
         : undefined,
     );
-    return options === undefined ? source : ImageExporter.svg([source], options);
+    return ImageExporter.svg([source], options);
   }
 
   /** Export mounted scales as PNG without changing their live readings. */

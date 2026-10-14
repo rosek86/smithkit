@@ -50,7 +50,7 @@ export class Complex {
 
     if (args.length === 2) {
       const arg0 = args[0];
-      const arg1 = args[1];
+      const arg1 = args[1] === undefined ? 0 : args[1];
 
       if (typeof arg0 === 'number' && typeof arg1 === 'number') {
         return new Complex(arg0, arg1);

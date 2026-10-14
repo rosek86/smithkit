@@ -2,6 +2,14 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { Complex } from '../src/math/Complex';
 
+it('treats an undefined imaginary component like an omitted argument', () => {
+  for (const real of [1, -2, 0, -0, Number.MIN_VALUE, Infinity, NaN]) {
+    expect(Complex.from(real, undefined).toVector()).toEqual(Complex.from(real).toVector());
+  }
+  expect(Complex.from(1, -0).toVector()).toEqual([1, -0]);
+  expect(() => Complex.from(1, null as unknown as number)).toThrow();
+});
+
 const operations = [
   'sqrt',
   'log',

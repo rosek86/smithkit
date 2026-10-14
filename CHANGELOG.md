@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Apply the same SVG output sizing and limits with omitted or empty options for charts and scales. Treat an explicit `undefined` imaginary argument in `Complex.from()` as zero, matching the optional signature.
+
 - Publish searchable API reference pages and usage guides alongside the demo. Keep README as an introduction, link framework examples to lifecycle/configuration/event documentation, and type-check guide snippets against the installed package.
 
 - Track a generated public API signature report and reject missing/stale reports or unexported local types in public signatures during CI and release checks. Add explicit report update/check commands and regression coverage.
