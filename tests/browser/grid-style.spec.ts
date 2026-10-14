@@ -47,19 +47,15 @@ test('grid setters and drawing options update the rendered geometry of all four 
         };
       };
       const initial = snapshot();
-      layer.setStyle({ stroke: '#123456', majorWidth: 2, minorWidth: 0.5 });
+      layer.setStyle({ line: { color: '#123456', majorWidth: 2, minorWidth: 0.5 } });
       const updated = snapshot();
       layer.setStyle({
-        stroke: '#654321',
-        majorWidth: 3,
-        minorWidth: 0.75,
-        textColor: '#abcdef',
-        textFontFamily: 'sans-serif',
-        textFontSize: 9,
+        line: { color: '#654321', majorWidth: 3, minorWidth: 0.75 },
+        text: { color: '#abcdef', fontFamily: 'sans-serif', fontSize: 9 },
       });
       const options = snapshot();
       // Individual setters must still work after applying a complete options object.
-      layer.setStyle({ stroke: '#123456', majorWidth: 2, minorWidth: 0.5 });
+      layer.setStyle({ line: { color: '#123456', majorWidth: 2, minorWidth: 0.5 } });
       return { initial, updated, options, updatedAgain: snapshot() };
     });
   });
@@ -170,14 +166,15 @@ test('numeric layer styles reject invalid lengths before changing any style', as
       grid: { detail: 'detailed' },
     });
     chart.draw('#chart');
-    chart.layers.resistance.setStyle({ stroke: 'blue', majorWidth: 2 });
-    chart.layers.q.setStyle({ stroke: 'blue', strokeWidth: 2 });
+    chart.layers.resistance.setStyle({ line: { color: 'blue', majorWidth: 2 } });
+    chart.layers.q.setStyle({ line: { color: 'blue', width: 2 } });
     const before = document.querySelector('svg')!.outerHTML;
     let rejected = 0;
     for (const width of [0, -1, NaN, Infinity, '3']) {
       for (const apply of [
-        () => chart.layers.resistance.setStyle({ stroke: 'red', majorWidth: width as number }),
-        () => chart.layers.q.setStyle({ stroke: 'red', strokeWidth: width as number }),
+        () =>
+          chart.layers.resistance.setStyle({ line: { color: 'red', majorWidth: width as number } }),
+        () => chart.layers.q.setStyle({ line: { color: 'red', width: width as number } }),
       ]) {
         try {
           apply();

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased — next minor
+
+- **Breaking:** group grid/circle styles and appearance overrides by visual element (`line`, `text`, `point`, `focus`, and scale subgroups). Replace flat style keys, preserve nested partial updates, and allow independent Q/VSWR theme widths. See the [migration guide](docs/migration-next.md).
+- Allow `new Smith(target, options?)` to configure and mount a chart with one call, accepting the same CSS selector or HTMLElement as `draw()`. Keep deferred mounting with `new Smith(options)`.
+
 ## 0.6.0 — 2026-10-14
 
 - Record native Firefox 114 and Safari 26.6 verification. Describe browser compatibility through completed tests, separately from compilation targets.

@@ -1,6 +1,6 @@
 import { Theme } from './appearance/Theme.js';
 import type { SmithOptions } from './options.js';
-import type { CircleStyle, GridDetail, GridStyle } from './layers.js';
+import type { CircleStyleOptions, GridDetail, GridStyleOptions } from './layers.js';
 
 /** Shared validation for initial configuration, patches, and individual controls. */
 export class OptionsValidation {
@@ -51,23 +51,27 @@ export class OptionsValidation {
     }
   }
 
-  public static gridStyle(style: Partial<GridStyle>): void {
-    OptionsValidation.object(style, 'Grid style', [
-      'stroke',
-      'majorWidth',
-      'minorWidth',
-      'textColor',
-      'textFontFamily',
-      'textFontSize',
-    ]);
-    OptionsValidation.lengths(style, ['majorWidth', 'minorWidth', 'textFontSize']);
-    OptionsValidation.strings(style, ['stroke', 'textColor', 'textFontFamily']);
+  public static gridStyle(style: GridStyleOptions): void {
+    OptionsValidation.object(style, 'Grid style', ['line', 'text']);
+    if (style.line !== undefined) {
+      OptionsValidation.object(style.line, 'Grid line', ['color', 'majorWidth', 'minorWidth']);
+      OptionsValidation.lengths(style.line, ['majorWidth', 'minorWidth']);
+      OptionsValidation.strings(style.line, ['color']);
+    }
+    if (style.text !== undefined) {
+      OptionsValidation.object(style.text, 'Grid text', ['color', 'fontFamily', 'fontSize']);
+      OptionsValidation.lengths(style.text, ['fontSize']);
+      OptionsValidation.strings(style.text, ['color', 'fontFamily']);
+    }
   }
 
-  public static circleStyle(style: Partial<CircleStyle>): void {
-    OptionsValidation.object(style, 'Circle style', ['stroke', 'strokeWidth']);
-    OptionsValidation.lengths(style, ['strokeWidth']);
-    OptionsValidation.strings(style, ['stroke']);
+  public static circleStyle(style: CircleStyleOptions): void {
+    OptionsValidation.object(style, 'Circle style', ['line']);
+    if (style.line !== undefined) {
+      OptionsValidation.object(style.line, 'Circle line', ['color', 'width']);
+      OptionsValidation.lengths(style.line, ['width']);
+      OptionsValidation.strings(style.line, ['color']);
+    }
   }
 
   public static circleValue(value: number, minimum: number): void {

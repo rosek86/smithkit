@@ -27,7 +27,7 @@ export interface CircleLayer {
     // (undocumented)
     removeValue(value: number): void;
     // (undocumented)
-    setStyle(style: Partial<CircleStyle>): void;
+    setStyle(style: CircleStyleOptions): void;
     setValues(values: readonly number[]): void;
     // (undocumented)
     setVisible(visible: boolean): void;
@@ -36,7 +36,7 @@ export interface CircleLayer {
 // @public (undocumented)
 export interface CircleLayerOptions {
     // (undocumented)
-    style?: Partial<CircleStyle>;
+    style?: CircleStyleOptions;
     values?: readonly number[];
     visible?: boolean;
 }
@@ -52,8 +52,16 @@ export interface CircleOptions {
 // @public (undocumented)
 export interface CircleStyle {
     // (undocumented)
-    stroke: string;
-    strokeWidth: number;
+    line: {
+        color: string;
+        width: number;
+    };
+}
+
+// @public (undocumented)
+export interface CircleStyleOptions {
+    // (undocumented)
+    line?: Partial<CircleStyle['line']>;
 }
 
 // @public (undocumented)
@@ -270,7 +278,7 @@ export interface GridLayer {
     setDetail(detail: GridDetail): void;
     setLabelsVisible(visible: boolean): void;
     // (undocumented)
-    setStyle(style: Partial<GridStyle>): void;
+    setStyle(style: GridStyleOptions): void;
     // (undocumented)
     setVisible(visible: boolean): void;
 }
@@ -282,7 +290,7 @@ export interface GridLayerOptions {
     // (undocumented)
     labelsVisible?: boolean;
     // (undocumented)
-    style?: Partial<GridStyle>;
+    style?: GridStyleOptions;
     // (undocumented)
     visible?: boolean;
 }
@@ -299,20 +307,31 @@ export interface GridOptions {
         susceptance?: GridLayerOptions;
     };
     // (undocumented)
-    style?: Partial<GridStyle>;
+    style?: GridStyleOptions;
 }
 
 // @public (undocumented)
 export interface GridStyle {
-    majorWidth: number;
-    minorWidth: number;
     // (undocumented)
-    stroke: string;
+    line: {
+        color: string;
+        majorWidth: number;
+        minorWidth: number;
+    };
     // (undocumented)
-    textColor: string;
+    text: {
+        color: string;
+        fontFamily: string;
+        fontSize: number;
+    };
+}
+
+// @public
+export interface GridStyleOptions {
     // (undocumented)
-    textFontFamily: string;
-    textFontSize: number;
+    line?: Partial<GridStyle['line']>;
+    // (undocumented)
+    text?: Partial<GridStyle['text']>;
 }
 
 // @public (undocumented)
@@ -432,6 +451,7 @@ export interface ScaleImageExportOptions extends ImageExportOptions {
 // @public (undocumented)
 export class Smith {
     constructor(options?: SmithOptions);
+    constructor(target: string | HTMLElement, options?: SmithOptions);
     addMarker(traceId: string, sampleIndex?: number): string | undefined;
     addTrace(values: TraceSamples, options?: TraceOptions): string;
     // (undocumented)
@@ -603,60 +623,103 @@ export interface SmithTheme {
     background: string;
     // (undocumented)
     boundary: {
-        stroke: string;
+        color: string;
         width: number;
     };
     // (undocumented)
     circles: {
-        q: string;
-        vswr: string;
-        width: number;
+        q: {
+            color: string;
+            width: number;
+        };
+        vswr: {
+            color: string;
+            width: number;
+        };
     };
     // (undocumented)
     cursor: {
-        pointColor: string;
-        impedanceColor: string;
-        admittanceColor: string;
-        pointSize: number;
-        lineWidth: number;
+        point: {
+            color: string;
+            size: number;
+        };
+        impedance: {
+            color: string;
+        };
+        admittance: {
+            color: string;
+        };
+        line: {
+            width: number;
+        };
     };
     // (undocumented)
-    fontFamily: string;
-    // (undocumented)
     grid: {
-        stroke: string;
-        textColor: string;
-        majorWidth: number;
-        minorWidth: number;
-        fontSize: number;
+        line: {
+            color: string;
+            majorWidth: number;
+            minorWidth: number;
+        };
+        text: {
+            color: string;
+            fontSize: number;
+        };
     };
     // (undocumented)
     marker: {
-        outlineColor: string;
-        textColor: string;
-        focusColor: string;
-        focusHaloColor: string;
+        outline: {
+            color: string;
+        };
+        text: {
+            color: string;
+        };
+        focus: {
+            color: string;
+            halo: string;
+        };
     };
     // (undocumented)
     scales: {
-        stroke: string;
-        boundaryColor: string;
-        textColor: string;
-        valueColor: string;
-        indicatorColor: string;
-        indicatorOutline: string;
-        fontSize: number;
-        titleFontSize: number;
-        valueFontSize: number;
-        peripheralFontSize: number;
+        line: {
+            color: string;
+        };
+        boundary: {
+            color: string;
+        };
+        text: {
+            color: string;
+            fontSize: number;
+        };
+        title: {
+            fontSize: number;
+        };
+        value: {
+            color: string;
+            fontSize: number;
+        };
+        indicator: {
+            color: string;
+            outline: string;
+        };
+        peripheral: {
+            fontSize: number;
+        };
     };
     // (undocumented)
-    traceColors: readonly string[];
+    text: {
+        fontFamily: string;
+    };
+    // (undocumented)
+    traces: {
+        colors: readonly string[];
+    };
 }
 
-// @public (undocumented)
+// @public
 export type SmithThemeOverrides = {
-    [K in keyof SmithTheme]?: SmithTheme[K] extends readonly string[] ? readonly string[] : SmithTheme[K] extends object ? Partial<SmithTheme[K]> : SmithTheme[K];
+    [K in keyof SmithTheme]?: SmithTheme[K] extends string ? string : {
+        [P in keyof SmithTheme[K]]?: SmithTheme[K][P] extends readonly string[] ? readonly string[] : SmithTheme[K][P] extends object ? Partial<SmithTheme[K][P]> : SmithTheme[K][P];
+    };
 };
 
 // @public

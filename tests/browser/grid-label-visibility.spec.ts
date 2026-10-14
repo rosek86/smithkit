@@ -32,7 +32,7 @@ test('grid labels toggle independently and preserve their preference through upd
           .filter((group) => group !== labels)
           .every((group) => getComputedStyle(group).display !== 'none');
         layer.setDetail('basic');
-        layer.setStyle({ textColor: '#123456' });
+        layer.setStyle({ text: { color: '#123456' } });
         chart.setAppearance({ theme: 'dark' });
         layer.setVisible(false);
         layer.setVisible(true);

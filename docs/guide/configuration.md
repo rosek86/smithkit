@@ -9,7 +9,8 @@ Reference: {@link SmithOptions | configuration fields}, {@link Smith.setOptions 
 
 ## Constructor configuration
 
-`new Smith(options?)` accepts a typed `SmithOptions` object. Every field is optional:
+`new Smith(options?)` and `new Smith(target, options?)` accept a typed `SmithOptions`
+object. Every configuration field is optional:
 
 ```ts
 import { Smith } from 'smithkit';
@@ -22,16 +23,16 @@ const chart = new Smith({
   grid: {
     detail: 'basic',
     labelsVisible: true,
-    style: { majorWidth: 1.5 },
+    style: { line: { majorWidth: 1.5 } },
     layers: {
-      resistance: { style: { stroke: '#60a5fa' } },
+      resistance: { style: { line: { color: '#60a5fa' } } },
       reactance: { labelsVisible: false },
       conductance: { visible: true, detail: 'standard' },
     },
   },
   circles: {
     q: { visible: true, values: [1, 2, 5] },
-    vswr: { visible: true, values: [2, 3], style: { stroke: '#fbbf24' } },
+    vswr: { visible: true, values: [2, 3], style: { line: { color: '#fbbf24' } } },
   },
 });
 chart.draw('#smith');
@@ -71,6 +72,19 @@ construction. `scaleReadout` requires `scales`; otherwise export throws/rejects 
 The constructor configures presentation and interaction. Add measurement data with
 `addTrace()` and optional markers with `addMarker()`; no markers are created implicitly.
 Radial parameter scales remain independently mounted `SmithScales` instances.
+
+### Mounting during construction
+
+When the host already exists, pass a CSS selector or an `HTMLElement` as the first
+argument: `new Smith('#smith', options)` or `new Smith(element, options)`.
+Options are optional: `new Smith('#smith')` mounts the default static chart.
+This is equivalent to `new Smith(options)` followed by `chart.draw(target)`.
+Strings are CSS selectors (use `'#smith'`, not a bare element ID).
+
+Keep `new Smith(options)` and call `draw()` later when the host is not available
+yet. A constructor target is a mounting argument, not part of `SmithOptions`:
+`setOptions()` changes configuration without moving the chart. Missing containers,
+invalid selectors, or invalid options throw; a failed mount releases its resources.
 
 ### Updating configuration
 
@@ -114,11 +128,11 @@ import type { SmithAppearance } from 'smithkit';
 const appearance: SmithAppearance = {
   theme: 'dark',
   overrides: {
-    fontFamily: 'Arial, sans-serif',
-    grid: { majorWidth: 1.2 },
-    cursor: { impedanceColor: '#fbbf24' },
-    marker: { focusColor: '#38bdf8' },
-    traceColors: ['#38bdf8', '#fb923c', '#a78bfa'],
+    text: { fontFamily: 'Arial, sans-serif' },
+    grid: { line: { majorWidth: 1.2 }, text: { color: '#e2e8f0' } },
+    cursor: { impedance: { color: '#fbbf24' } },
+    marker: { focus: { color: '#38bdf8' } },
+    traces: { colors: ['#38bdf8', '#fb923c', '#a78bfa'] },
   },
 };
 const chart = new Smith({ referenceImpedanceOhms: 50, appearance });
@@ -136,16 +150,23 @@ settings return to the selected preset, or light when `theme` is omitted.
 Nested overrides are partial. Appearance is scoped to each component and does not
 change the surrounding application's CSS or other chart instances.
 
-| Override                   | Settings                                                                                                                                                                             |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `background`, `fontFamily` | Component background and shared font family.                                                                                                                                         |
-| `grid`                     | `stroke`, `textColor`, `majorWidth`, `minorWidth`, `fontSize`.                                                                                                                       |
-| `boundary`                 | `stroke`, `width` for the Smith chart boundary.                                                                                                                                      |
-| `circles`                  | `q`, `vswr` colors and shared `width`.                                                                                                                                               |
-| `scales`                   | `stroke`, `boundaryColor`, `textColor`, `valueColor`, `indicatorColor`, `indicatorOutline`; `fontSize` for radial ticks, `titleFontSize`, `valueFontSize`, and `peripheralFontSize`. |
-| `cursor`                   | `pointColor`, `impedanceColor`, `admittanceColor`, `pointSize` (dot diameter), `lineWidth`.                                                                                          |
-| `marker`                   | `outlineColor`, `textColor`, `focusColor`, `focusHaloColor`. Marker fill follows its trace color.                                                                                    |
-| `traceColors`              | Non-empty palette for automatically colored traces.                                                                                                                                  |
+| Override                                               | Settings                                                                                    |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| `background`, `text`                                   | Component background and shared `text.fontFamily`.                                          |
+| `grid.line`                                            | `color`, `majorWidth`, `minorWidth`.                                                        |
+| `grid.text`                                            | `color`, `fontSize`.                                                                        |
+| `boundary`                                             | `color`, `width` for the Smith chart boundary.                                              |
+| `circles.q`, `circles.vswr`                            | Independent `color` and `width` for each circle family.                                     |
+| `scales.line`, `scales.boundary`                       | `color` for ticks/axes and peripheral band outlines.                                        |
+| `scales.text`                                          | `color` and radial tick `fontSize`; the color also applies to titles and peripheral labels. |
+| `scales.title`, `scales.peripheral`                    | `fontSize` for radial titles and peripheral labels.                                         |
+| `scales.value`                                         | `color`, `fontSize` for readings.                                                           |
+| `scales.indicator`                                     | `color`, `outline` for reading dots.                                                        |
+| `cursor.point`                                         | `color`, `size` (dot diameter).                                                             |
+| `cursor.impedance`, `cursor.admittance`, `cursor.line` | Axis `color` and shared line `width`.                                                       |
+| `marker.text`, `marker.outline`                        | `color`; marker fill follows its trace color.                                               |
+| `marker.focus`                                         | `color` and `halo` color.                                                                   |
+| `traces.colors`                                        | Non-empty palette for automatically colored traces.                                         |
 
 Colors must be solid CSS colors accepted by the library's color parser, including
 hex, RGB, HSL, named colors, and `transparent`; CSS variable references are not
@@ -181,14 +202,14 @@ chart.layers.susceptance.setVisible(true);
 chart.layers.conductance.setDetail('standard');
 chart.layers.conductance.setLabelsVisible(false);
 chart.layers.susceptance.setLabelsVisible(false);
-chart.layers.susceptance.setStyle({ stroke: '#64748b', textColor: '#2a7f62' });
+chart.layers.susceptance.setStyle({ line: { color: '#64748b' }, text: { color: '#2a7f62' } });
 chart.layers.vswr.addValue(4);
 chart.layers.vswr.setVisible(true);
 ```
 
 The four grid layers support `setVisible`, `setLabelsVisible`, `setDetail`, and
-`setStyle(Partial<GridStyle>)`. Style fields: `stroke`, `majorWidth`, `minorWidth`,
-`textColor`, `textFontFamily`, `textFontSize`. Widths are positive finite numbers
+`setStyle(GridStyleOptions)`. Styles group `line.color`, `line.majorWidth`,
+`line.minorWidth` and `text.color`, `text.fontFamily`, `text.fontSize`. Widths are positive finite numbers
 in CSS pixels. Font size is a positive finite base size in chart units; adaptive
 layout raises it when needed to keep the font size at least 9 CSS pixels in the
 default view. Partial updates retain other settings. Invalid numeric styles throw
@@ -213,7 +234,7 @@ whole-layer visibility changes and is included in SVG exports. Calling
 layout; it does not show a hidden layer. The **Grid labels** checkbox in the demo’s **Chart settings** dialog controls all four grid layers together. Peripheral scale labels are unaffected.
 
 `layers.q` and `layers.vswr` support `setVisible`,
-`setStyle({ stroke?, strokeWidth? })`, `setValues`, `addValue`, and `removeValue`.
+`setStyle({ line: { color?, width? } })`, `setValues`, `addValue`, and `removeValue`.
 `setValues([1, 2, 5])` replaces the entire list; `setValues([])` clears it.
 Input arrays are copied, duplicate values are ignored, and invalid input leaves
 the previous values unchanged.

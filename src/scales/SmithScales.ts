@@ -39,9 +39,9 @@ export class SmithScales {
       .append('text')
       .attr('x', this.start)
       .attr('y', 12)
-      .attr('font-family', 'var(--smithkit-fontFamily)')
-      .attr('font-size', 'var(--smithkit-scales-titleFontSize)')
-      .attr('fill', 'var(--smithkit-scales-textColor)')
+      .attr('font-family', 'var(--smithkit-text-fontFamily)')
+      .attr('font-size', 'var(--smithkit-scales-title-fontSize)')
+      .attr('fill', 'var(--smithkit-scales-text-color)')
       .text((scale) => scale.title);
     labels
       .append('text')
@@ -49,10 +49,10 @@ export class SmithScales {
       .attr('data-role', 'scale-value')
       .attr('x', this.start)
       .attr('y', 25)
-      .attr('font-family', 'var(--smithkit-fontFamily)')
-      .attr('font-size', 'var(--smithkit-scales-valueFontSize)')
+      .attr('font-family', 'var(--smithkit-text-fontFamily)')
+      .attr('font-size', 'var(--smithkit-scales-value-fontSize)')
       .attr('font-weight', 600)
-      .attr('fill', 'var(--smithkit-scales-valueColor)')
+      .attr('fill', 'var(--smithkit-scales-value-color)')
       .text('—');
     this.axes
       .append('line')
@@ -61,7 +61,7 @@ export class SmithScales {
       .attr('x2', this.start + this.length)
       .attr('y1', 36)
       .attr('y2', 36)
-      .attr('stroke', 'var(--smithkit-scales-stroke)')
+      .attr('stroke', 'var(--smithkit-scales-line-color)')
       .attr('stroke-width', 1);
     const start = this.start;
     const length = this.length;
@@ -75,7 +75,7 @@ export class SmithScales {
       ticks
         .append('line')
         .attr('y2', 5)
-        .attr('stroke', 'var(--smithkit-scales-stroke)')
+        .attr('stroke', 'var(--smithkit-scales-line-color)')
         .attr('stroke-width', 1);
       select(this)
         .select('[data-role=labels]')
@@ -85,9 +85,9 @@ export class SmithScales {
         .attr('transform', (value) => `translate(${start + length * scale.position(value)},36)`)
         .append('text')
         .attr('y', 17)
-        .attr('font-size', 'var(--smithkit-scales-fontSize)')
-        .attr('font-family', 'var(--smithkit-fontFamily)')
-        .attr('fill', 'var(--smithkit-scales-textColor)')
+        .attr('font-size', 'var(--smithkit-scales-text-fontSize)')
+        .attr('font-family', 'var(--smithkit-text-fontFamily)')
+        .attr('fill', 'var(--smithkit-scales-text-color)')
         .attr('text-anchor', (_, i) =>
           i === 0 ? 'start' : i === scale.values.length - 1 ? 'end' : 'middle',
         )
@@ -100,8 +100,8 @@ export class SmithScales {
       .attr('cx', this.start)
       .attr('cy', 36)
       .attr('r', 4)
-      .attr('fill', 'var(--smithkit-scales-indicatorColor)')
-      .attr('stroke', 'var(--smithkit-scales-indicatorOutline)')
+      .attr('fill', 'var(--smithkit-scales-indicator-color)')
+      .attr('stroke', 'var(--smithkit-scales-indicator-outline)')
       .attr('stroke-width', 1);
     labels.raise();
     this.axes.append('title').text((scale) => scale.description ?? scale.title);
@@ -177,8 +177,8 @@ export class SmithScales {
       readout?.label
         ? {
             text: readout.label,
-            color: style.getPropertyValue('--smithkit-scales-textColor').trim(),
-            fontFamily: style.getPropertyValue('--smithkit-fontFamily').trim(),
+            color: style.getPropertyValue('--smithkit-scales-text-color').trim(),
+            fontFamily: style.getPropertyValue('--smithkit-text-fontFamily').trim(),
           }
         : undefined,
     );

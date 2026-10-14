@@ -1,8 +1,7 @@
 import { Smith } from 'smithkit';
 import type { SmithAppearance } from 'smithkit';
 
-const chart = new Smith({ interaction: { cursor: true } });
-chart.draw('#chart');
+const chart = new Smith('#chart', { interaction: { cursor: true } });
 const traceId = chart.addTrace(
   [
     { frequencyHz: 1e9, reflectionCoefficient: [0.4, -0.4] },
@@ -19,7 +18,7 @@ function applyTheme(): void {
   chart.setOptions({
     appearance: {
       theme: select.value as SmithAppearance['theme'],
-      overrides: { grid: { fontSize: 11 }, cursor: { pointColor: '#f97316' } },
+      overrides: { grid: { text: { fontSize: 11 } }, cursor: { point: { color: '#f97316' } } },
     },
   });
 }

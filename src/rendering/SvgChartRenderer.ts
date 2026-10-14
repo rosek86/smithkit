@@ -129,7 +129,7 @@ export class SvgChartRenderer {
     const cursorContainer = this.cursorContainer();
 
     this.reactanceAxis = this.drawReactanceAxis({
-      stroke: 'var(--smithkit-boundary-stroke)',
+      stroke: 'var(--smithkit-boundary-color)',
       strokeWidth: 'var(--smithkit-boundary-width)',
       fill: 'none',
     });

@@ -1,6 +1,6 @@
 # Public API review and compatibility policy
 
-Reviewed against **0.5.0**, including compact trace input, optional line simplification, and Touchstone reflection I/O,
+Reviewed against **0.6.0 and the next minor API changes**, including grouped visual styles, optional constructor mounting, compact trace input, line simplification, and Touchstone reflection I/O,
 including the installed integration examples and the subsequent React/Angular
 lifecycle verification. Version 0.3.0 used positional constructor arguments,
 interactive defaults, and an automatic marker. See [migration to 0.4](migration-0.4.md).
@@ -39,9 +39,9 @@ const chart = new Smith({
   grid: {
     detail: 'standard',
     labelsVisible: true,
-    style: { majorWidth: 1.5 },
+    style: { line: { majorWidth: 1.5 } },
     layers: {
-      resistance: { style: { stroke: '#60a5fa' } },
+      resistance: { style: { line: { color: '#60a5fa' } } },
       conductance: { visible: true, detail: 'basic' },
     },
   },
@@ -70,6 +70,13 @@ controls: callers need not traverse configuration objects to change one layer.
 and cursor tracking run. A marker's appearance does not create that marker.
 Traces and markers are added separately with `addTrace()` and `addMarker()`.
 Report options belong to each export call, not the chart constructor.
+
+Visual styles group line settings under `line` and labels under `text`. Theme
+overrides use the same grouping, with `point`, `indicator`, `value`, and `focus`
+for their respective elements. Nested style patches preserve omitted siblings.
+The optional first constructor argument mounts into a CSS selector or HTMLElement;
+`new Smith(options)` remains available for deferred `draw()`. The target is not a
+configuration field and cannot be changed through `setOptions()`.
 
 `setOptions(SmithOptions)` applies the same grouped schema as a patch. Omitted and
 `undefined` fields retain their current values, including nested fields. Empty

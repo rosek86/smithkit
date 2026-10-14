@@ -5,6 +5,11 @@ new integration, start with the [README](../README.md) and the
 [API documentation](https://rosek86.github.io/smithkit/api/).
 When skipping versions, apply the relevant migrations in version order.
 
+## 0.6.x to the next minor (unreleased)
+
+Visual styles are grouped by element and chart construction can mount directly
+into a container. Follow the [next minor migration guide](migration-next.md).
+
 ## 0.4.x to 0.5.0
 
 No migration is required. Object-based trace inputs and default Touchstone `.s1p`

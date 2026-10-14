@@ -39,8 +39,8 @@ export class SmithCursor {
 
     this.impedance = {
       group: new SmithGroup({
-        stroke: 'var(--smithkit-cursor-impedanceColor)',
-        strokeWidth: 'var(--smithkit-cursor-lineWidth)',
+        stroke: 'var(--smithkit-cursor-impedance-color)',
+        strokeWidth: 'var(--smithkit-cursor-line-width)',
         fill: 'none',
       }),
       resistance: { circle: new SmithCircle({ p: [0, 0], r: 1 }) },
@@ -55,8 +55,8 @@ export class SmithCursor {
 
     this.admittance = {
       group: new SmithGroup({
-        stroke: 'var(--smithkit-cursor-admittanceColor)',
-        strokeWidth: 'var(--smithkit-cursor-lineWidth)',
+        stroke: 'var(--smithkit-cursor-admittance-color)',
+        strokeWidth: 'var(--smithkit-cursor-line-width)',
         fill: 'none',
       }),
       conductance: { circle: new SmithCircle({ p: [0, 0], r: 1 }) },
@@ -70,8 +70,8 @@ export class SmithCursor {
     this.admittance.susceptance.line.nonScalingStroke();
 
     this.point = new SmithLine([0, 0], [0, 0], {
-      stroke: 'var(--smithkit-cursor-pointColor)',
-      strokeWidth: 'var(--smithkit-cursor-pointSize)',
+      stroke: 'var(--smithkit-cursor-point-color)',
+      strokeWidth: 'var(--smithkit-cursor-point-size)',
       fill: 'none',
     });
     this.point.nonScalingStroke();

@@ -43,9 +43,8 @@ test('live themes preserve chart state, focus, explicit styles, and other chart 
     const marker = chart.getTraces()[0].markers[0].id;
     chart.setMarkerSample(marker, 1);
     chart.layers.resistance.setStyle({
-      stroke: 'purple',
-      textFontFamily: 'Georgia',
-      majorWidth: 2,
+      line: { color: 'purple', majorWidth: 2 },
+      text: { fontFamily: 'Georgia' },
     });
     chart.layers.conductance.setVisible(true);
     chart.layers.reactance.setDetail('standard');
@@ -69,12 +68,12 @@ test('live themes preserve chart state, focus, explicit styles, and other chart 
     chart.setAppearance({
       theme: 'dark',
       overrides: {
-        fontFamily: 'Arial',
-        marker: { focusColor: 'yellow' },
-        cursor: { impedanceColor: 'cyan' },
+        text: { fontFamily: 'Arial' },
+        marker: { focus: { color: 'yellow' } },
+        cursor: { impedance: { color: 'cyan' } },
       },
     });
-    scales.setAppearance({ theme: 'dark', overrides: { fontFamily: 'Arial' } });
+    scales.setAppearance({ theme: 'dark', overrides: { text: { fontFamily: 'Arial' } } });
     const style = (selector: string) => getComputedStyle(document.querySelector(selector)!);
     const themed = {
       background: style('#chart svg').backgroundColor,
@@ -101,7 +100,7 @@ test('live themes preserve chart state, focus, explicit styles, and other chart 
     chart.setAppearance({});
     const resetColors = chart.getTraces().map((t) => t.color);
     const resetFocus = style('#chart .marker-focus circle:last-child').stroke;
-    chart.setAppearance({ overrides: { traceColors: ['pink', 'teal'] } });
+    chart.setAppearance({ overrides: { traces: { colors: ['pink', 'teal'] } } });
     const customColors = chart.getTraces().map((t) => t.color);
     return { themed, addedColor, resetColors, resetFocus, customColors };
   });
@@ -150,7 +149,7 @@ test('appearance validation is atomic and retained components reject changes aft
     let failures = 0;
     for (const component of [chart, scales]) {
       try {
-        component.setAppearance({ theme: 'light', overrides: { cursor: { lineWidth: -1 } } });
+        component.setAppearance({ theme: 'light', overrides: { cursor: { line: { width: -1 } } } });
       } catch {
         failures++;
       }
@@ -179,7 +178,7 @@ test('dark SVG exports resolve theme tokens and include independent backgrounds'
     const { Smith, SmithScales, Complex } = window.SmithTest;
     const appearance: import('../../src').SmithAppearance = {
       theme: 'dark',
-      overrides: { fontFamily: 'Arial', scales: { indicatorColor: '#00ffff' } },
+      overrides: { text: { fontFamily: 'Arial' }, scales: { indicator: { color: '#00ffff' } } },
     };
     const chart = new Smith({
       referenceImpedanceOhms: 50,

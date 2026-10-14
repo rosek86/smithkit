@@ -68,8 +68,8 @@ export class SmithMarker extends SmithShape {
       .attr('pointer-events', 'none')
       .attr('aria-hidden', 'true');
     for (const [stroke, width] of [
-      ['var(--smithkit-marker-focusHaloColor)', 5],
-      ['var(--smithkit-marker-focusColor)', 2.5],
+      ['var(--smithkit-marker-focus-halo)', 5],
+      ['var(--smithkit-marker-focus-color)', 2.5],
     ] as const) {
       this.focusRing
         .append('circle')
@@ -81,17 +81,17 @@ export class SmithMarker extends SmithShape {
     this.triangle = g
       .append('polygon')
       .attr('stroke', 'none')
-      .attr('fill', 'var(--smithkit-marker-outlineColor)');
+      .attr('fill', 'var(--smithkit-marker-outline-color)');
     this.inner = g.append('polygon').attr('stroke', 'none').attr('fill', color);
     this.text = g
       .append('text')
       .attr('pointer-events', 'none')
       .attr('aria-hidden', 'true')
-      .attr('font-family', 'var(--smithkit-fontFamily)')
+      .attr('font-family', 'var(--smithkit-text-fontFamily)')
       .attr('font-weight', 'normal')
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
-      .attr('fill', 'var(--smithkit-marker-textColor)')
+      .attr('fill', 'var(--smithkit-marker-text-color)')
       .text(marker.toString());
     this.zoom(1);
 
