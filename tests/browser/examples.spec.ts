@@ -26,7 +26,7 @@ test('source highlighting preserves copyable TS, TSX, and HTML in the API dark p
       await expect(page.locator('#markup span').first()).toBeVisible();
       await expect(page.locator('#markup :not(span)')).toHaveCount(0);
       if (slug === 'static') {
-        await expect(page.locator('#markup')).toContainText('<div id="chart"');
+        await expect(page.locator('#markup')).toContainText('id="chart"');
       } else {
         const extension = slug === 'react' ? 'tsx' : 'ts';
         const application = await readFile(`examples/${slug}/main.${extension}`, 'utf8');
@@ -35,6 +35,43 @@ test('source highlighting preserves copyable TS, TSX, and HTML in the API dark p
           application + '\n\n// framework-data.ts\n' + data,
         );
       }
+    }
+  }
+});
+
+test('HTML snippets use readable indentation and preserve the example controls after building', async ({
+  page,
+}) => {
+  for (const slug of ['static', 'markers', 'appearance', 'export', 'touchstone', 'large-trace']) {
+    await page.goto(`examples/${slug}/index.html`);
+    await page.locator('details summary').click();
+    await expect(page.locator('#markup span').first()).toBeVisible();
+    const markup = (await page.locator('#markup').textContent())!;
+    expect(markup).toMatch(/^<div\n {2}id="chart"\n/m);
+    expect(markup).not.toContain('</label\n');
+    const controls = await page.evaluate((html) => {
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      const selectors = 'input, select, button, output';
+      const describe = (element: Element) => ({
+        tag: element.tagName,
+        id: element.id,
+        type: element.getAttribute('type'),
+        min: element.getAttribute('min'),
+        max: element.getAttribute('max'),
+        options: [...element.querySelectorAll('option')].map((option) => option.value),
+      });
+      return {
+        snippet: [...template.content.querySelectorAll(selectors)].map(describe),
+        preview: [...document.querySelector('.preview')!.querySelectorAll(selectors)]
+          .filter((element) => !element.closest('#chart'))
+          .map(describe),
+      };
+    }, markup);
+    expect(controls.snippet).toEqual(controls.preview);
+    if (slug === 'markers') {
+      expect(markup).toContain('<label for="sample">\n  Selected sample\n  <input');
+      expect(markup).toContain('\n</label>\n<output');
     }
   }
 });

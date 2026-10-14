@@ -178,6 +178,10 @@ output {
   margin: 16px 0;
   font-variant-numeric: tabular-nums;
 }
+code,
+pre {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+}
 pre {
   overflow: auto;
   padding: 20px;
@@ -186,6 +190,7 @@ pre {
   background: var(--page);
   font-size: 13px;
   line-height: 1.65;
+  tab-size: 2;
 }
 summary {
   cursor: pointer;
