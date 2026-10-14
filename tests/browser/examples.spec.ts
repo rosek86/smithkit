@@ -1,6 +1,81 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('source highlighting preserves copyable TS, TSX, and HTML in the API dark palette', async ({
+  page,
+}) => {
+  for (const [slug, file] of [
+    ['static', 'main.ts'],
+    ['basic', 'main.ts'],
+    ['react', 'SmithChart.tsx'],
+    ['angular', 'SmithChartComponent.ts'],
+  ]) {
+    await page.goto(`examples/${slug}/index.html`);
+    const code = page.locator('#source');
+    await expect(code.locator('span').first()).toBeAttached();
+    expect(await code.textContent()).toBe(await readFile(`examples/${slug}/${file}`, 'utf8'));
+    await expect(
+      code
+        .locator('span')
+        .filter({ hasText: /^import$/ })
+        .first(),
+    ).toHaveCSS('color', 'rgb(197, 134, 192)');
+    await expect(code.locator('..')).toHaveCSS('background-color', 'rgb(30, 30, 30)');
+    if (slug !== 'basic') {
+      await page.locator('details summary').click();
+      await expect(page.locator('#markup span').first()).toBeVisible();
+      await expect(page.locator('#markup :not(span)')).toHaveCount(0);
+      if (slug === 'static') {
+        await expect(page.locator('#markup')).toContainText('id="chart"');
+      } else {
+        const extension = slug === 'react' ? 'tsx' : 'ts';
+        const application = await readFile(`examples/${slug}/main.${extension}`, 'utf8');
+        const data = await readFile('examples/framework-data.ts', 'utf8');
+        expect(await page.locator('#markup').textContent()).toBe(
+          application + '\n\n// framework-data.ts\n' + data,
+        );
+      }
+    }
+  }
+});
+
+test('HTML snippets use readable indentation and preserve the example controls after building', async ({
+  page,
+}) => {
+  for (const slug of ['static', 'markers', 'appearance', 'export', 'touchstone', 'large-trace']) {
+    await page.goto(`examples/${slug}/index.html`);
+    await page.locator('details summary').click();
+    await expect(page.locator('#markup span').first()).toBeVisible();
+    const markup = (await page.locator('#markup').textContent())!;
+    expect(markup).toMatch(/^<div\n {2}id="chart"\n/m);
+    expect(markup).not.toContain('</label\n');
+    const controls = await page.evaluate((html) => {
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      const selectors = 'input, select, button, output';
+      const describe = (element: Element) => ({
+        tag: element.tagName,
+        id: element.id,
+        type: element.getAttribute('type'),
+        min: element.getAttribute('min'),
+        max: element.getAttribute('max'),
+        options: [...element.querySelectorAll('option')].map((option) => option.value),
+      });
+      return {
+        snippet: [...template.content.querySelectorAll(selectors)].map(describe),
+        preview: [...document.querySelector('.preview')!.querySelectorAll(selectors)]
+          .filter((element) => !element.closest('#chart'))
+          .map(describe),
+      };
+    }, markup);
+    expect(controls.snippet).toEqual(controls.preview);
+    if (slug === 'markers') {
+      expect(markup).toContain('<label for="sample">\n  Selected sample\n  <input');
+      expect(markup).toContain('\n</label>\n<output');
+    }
+  }
+});
+
 test('demo links to a gallery with runnable examples and executable source', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));

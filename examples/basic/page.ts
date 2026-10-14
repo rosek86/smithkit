@@ -1,4 +1,5 @@
 import './main';
 import source from './main.ts?raw';
+import { showCode } from './highlight';
 
-document.querySelector('#source')!.textContent = source;
+void showCode('#source', source);

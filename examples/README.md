@@ -34,6 +34,12 @@ Use the archive's absolute path when running a copied gallery.
 installed `smithkit` package and has no aliases to repository source. The basic
 example also remains runnable independently from its own directory.
 
+Source panels use Shiki with the same `dark-plus` syntax theme as the API reference.
+The shared presentation helper lives in `basic/highlight.ts` so the basic example
+remains self-contained. Highlighting is not needed by the chart integration code.
+HTML host snippets are formatted with Prettier before highlighting, including in
+production builds where the page markup is minified.
+
 The pages use ordinary HTML elements and containers with an explicit size. A white
 host background keeps the light theme's dark labels readable: the light preset's
 SVG background is transparent. The dark preset supplies its own opaque background.

@@ -25,6 +25,8 @@
   "searchInDocuments": true,
   "searchInComments": true,
   "customCss": "docs/api.css",
+  "darkHighlightTheme": "dark-plus",
+  "lightHighlightTheme": "light-plus",
   "treatWarningsAsErrors": true,
   "navigationLinks": {
     "Demo": "https://rosek86.github.io/smithkit/",

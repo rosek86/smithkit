@@ -1,8 +1,11 @@
 import './style.css';
+import { showCode } from './basic/highlight';
+import { format } from 'prettier/standalone';
+import * as htmlPlugin from 'prettier/plugins/html';
 
 /** Display the exact executed source and the required host markup. */
-export function showSource(source: string): void {
-  document.querySelector('#source')!.textContent = source;
+export async function showSource(source: string): Promise<void> {
+  void showCode('#source', source);
   const markup = document.querySelector('.preview')!.cloneNode(true) as HTMLElement;
   const chart = markup.querySelector('#chart')!;
   chart.replaceChildren();
@@ -11,5 +14,13 @@ export function showSource(source: string): void {
   if (output) {
     output.replaceChildren();
   }
-  document.querySelector('#markup')!.textContent = markup.innerHTML.trim();
+  const formattedMarkup = await format(markup.innerHTML, {
+    parser: 'html',
+    plugins: [htmlPlugin],
+    printWidth: 80,
+    tabWidth: 2,
+    useTabs: false,
+    htmlWhitespaceSensitivity: 'ignore',
+  });
+  await showCode('#markup', formattedMarkup.trimEnd(), 'html');
 }
