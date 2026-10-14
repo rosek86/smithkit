@@ -74,7 +74,7 @@ Touchstone.parse('1 0 0', { parameter: 'S21' });
 const parsed: TouchstoneData = Touchstone.parse('# GHz S RI R 50\\n1 0 0');
 import type { SmithOptions, GridOptions, GridLayerOptions, CircleLayerOptions, CircleOptions, InteractionOptions, PeripheralScalesOptions } from 'smithkit';
 const grid: GridOptions = { detail: 'basic', labelsVisible: true };
-const gridLayer: GridLayerOptions = { visible: true, style: { majorWidth: 2 } };
+const gridLayer: GridLayerOptions = { visible: true, style: { line: { majorWidth: 2 } } };
 const circles: CircleLayerOptions = { values: [1, 2] as const, visible: true };
 const interaction: InteractionOptions = { zoom: true, cursor: true };
 const peripheralScales: PeripheralScalesOptions = { visible: false };
@@ -94,6 +94,17 @@ chart.setOptions({ interaction: { cursor: false }, grid: { layers: { resistance:
 chart.setOptions({ cursorEnabled: true });
 new Smith();
 new Smith({});
+new Smith('#chart');
+new Smith(document.createElement('div'), configuration);
+new Smith('#chart', { grid: { style: { text: { color: 'red' } } }, appearance: { overrides: { grid: { text: { fontSize: 10 } } } } });
+// @ts-expect-error A mounting target is separate from the configuration patch.
+chart.setOptions({ target: '#chart' });
+// @ts-expect-error Removed flat grid style keys are not compatibility aliases.
+chart.layers.resistance.setStyle({ textColor: 'red' });
+// @ts-expect-error Removed flat appearance keys are not compatibility aliases.
+new Smith({ appearance: { overrides: { grid: { textColor: 'red' } } } });
+// @ts-expect-error Nested font sizes remain numeric.
+new Smith('#chart', { grid: { style: { text: { fontSize: '10' } } } });
 chart.setGridDetail('basic');
 chart.setCursorEnabled(true);
 chart.setCursorEnabled(false);
@@ -102,7 +113,7 @@ chart.setCursorEnabled('false');
 // @ts-expect-error Cursor configuration requires a boolean.
 new Smith({ interaction: { cursor: 'true' } });
 chart.layers.q.setValues([1, 2] as const);
-// @ts-expect-error Positional constructor arguments are no longer supported.
+// @ts-expect-error Reference impedance is a configuration field, not a mounting target.
 new Smith(50);
 // @ts-expect-error Unknown detail levels must not compile.
 new Smith({ grid: { detail: 'sparse' } });
@@ -195,9 +206,9 @@ const unsubscribe = chart.onEvent((event: SmithEvent) => {
   }
 });
 chart.renormalize(75);
-chart.layers.resistance.setStyle({ majorWidth: 2 });
+chart.layers.resistance.setStyle({ line: { majorWidth: 2 } });
 // @ts-expect-error Public lengths are numeric CSS pixels, not SVG strings.
-chart.layers.resistance.setStyle({ majorWidth: '2' });
+chart.layers.resistance.setStyle({ line: { majorWidth: '2' } });
 chart.peripheralScales.update(Complex.zero());
 unsubscribe();
 chart.clearTraces();

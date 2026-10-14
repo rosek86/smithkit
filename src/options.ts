@@ -1,12 +1,12 @@
 import type { SmithAppearance } from './appearance/types.js';
-import type { CircleStyle, GridDetail, GridStyle } from './layers.js';
+import type { CircleStyleOptions, GridDetail, GridStyleOptions } from './layers.js';
 
 /** Settings for an individual impedance/admittance grid layer. */
 export interface GridLayerOptions {
   visible?: boolean;
   detail?: GridDetail;
   labelsVisible?: boolean;
-  style?: Partial<GridStyle>;
+  style?: GridStyleOptions;
 }
 
 /** Shared settings for all four grids, followed by per-layer overrides. */
@@ -15,7 +15,7 @@ export interface GridOptions {
   detail?: GridDetail;
   /** Default: true. */
   labelsVisible?: boolean;
-  style?: Partial<GridStyle>;
+  style?: GridStyleOptions;
   layers?: {
     resistance?: GridLayerOptions;
     reactance?: GridLayerOptions;
@@ -27,7 +27,7 @@ export interface GridOptions {
 export interface CircleLayerOptions {
   /** Default: false. */
   visible?: boolean;
-  style?: Partial<CircleStyle>;
+  style?: CircleStyleOptions;
   /** Replace the default values. Empty hides all circles; duplicate values are ignored. */
   values?: readonly number[];
 }

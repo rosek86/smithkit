@@ -127,18 +127,17 @@ function demoAppearance(theme: SmithAppearance['theme']): SmithAppearance {
       ? {
           overrides: {
             background: '#191c20',
-            fontFamily: 'Arial, sans-serif',
-            grid: { stroke: '#727984', textColor: '#c7cbd1' },
-            boundary: { stroke: '#9da3ad' },
+            text: { fontFamily: 'Arial, sans-serif' },
+            grid: { line: { color: '#727984' }, text: { color: '#c7cbd1' } },
+            boundary: { color: '#9da3ad' },
             scales: {
-              stroke: '#727984',
-              boundaryColor: '#9da3ad',
-              textColor: '#b5bcc5',
-              valueColor: '#e4e7eb',
-              indicatorColor: '#e9ac59',
-              indicatorOutline: '#191c20',
+              line: { color: '#727984' },
+              boundary: { color: '#9da3ad' },
+              text: { color: '#b5bcc5' },
+              value: { color: '#e4e7eb' },
+              indicator: { color: '#e9ac59', outline: '#191c20' },
             },
-            cursor: { pointColor: '#a0bce5', impedanceColor: '#a0bce5' },
+            cursor: { point: { color: '#a0bce5' }, impedance: { color: '#a0bce5' } },
           },
         }
       : {}),

@@ -128,7 +128,7 @@ test('layout reacts to layer visibility, text styling, zoom and reset', async ({
     const initial = visible().map((label) => label.outerHTML);
     chart.layers.conductance.setVisible(true);
     chart.layers.susceptance.setVisible(true);
-    chart.layers.resistance.setStyle({ textFontFamily: 'monospace', textFontSize: 18 });
+    chart.layers.resistance.setStyle({ text: { fontFamily: 'monospace', fontSize: 18 } });
     const boxes = visible()
       .filter((label) => !label.closest('[data-label-layer=peripheral-scales]'))
       .map((label) => label.getBoundingClientRect());
@@ -144,7 +144,7 @@ test('layout reacts to layer visibility, text styling, zoom and reset', async ({
     const admittance = visible().some((label) => label.closest('[data-label-layer=conductance]'));
     chart.layers.conductance.setVisible(false);
     chart.layers.susceptance.setVisible(false);
-    chart.layers.resistance.setStyle({ textFontFamily: 'Verdana', textFontSize: 7 });
+    chart.layers.resistance.setStyle({ text: { fontFamily: 'Verdana', fontSize: 7 } });
     chart.layers.resistance.setVisible(true);
     chart.layers.reactance.setVisible(true);
     const restored = visible().map((label) => label.outerHTML);

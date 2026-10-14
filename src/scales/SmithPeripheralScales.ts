@@ -51,7 +51,7 @@ export class SmithPeripheralScales extends SmithGroup {
       .attr('cy', 250)
       .attr('r', (radius) => radius)
       .attr('fill', 'none')
-      .attr('stroke', 'var(--smithkit-scales-boundaryColor)')
+      .attr('stroke', 'var(--smithkit-scales-boundary-color)')
       .attr('stroke-width', 1.1)
       .attr('vector-effect', 'non-scaling-stroke');
     this.axes.each(function (scale, index) {
@@ -69,7 +69,7 @@ export class SmithPeripheralScales extends SmithGroup {
           .attr('cy', 250)
           .attr('r', radius)
           .attr('fill', 'none')
-          .attr('stroke', 'var(--smithkit-scales-stroke)')
+          .attr('stroke', 'var(--smithkit-scales-line-color)')
           .attr('stroke-width', 0.6)
           .attr('vector-effect', 'non-scaling-stroke');
       }
@@ -84,7 +84,7 @@ export class SmithPeripheralScales extends SmithGroup {
           .attr('y1', y1)
           .attr('x2', x2)
           .attr('y2', y2)
-          .attr('stroke', 'var(--smithkit-scales-stroke)')
+          .attr('stroke', 'var(--smithkit-scales-line-color)')
           .attr('stroke-width', major ? 0.8 : 0.5)
           .attr('vector-effect', 'non-scaling-stroke');
         const captionDistance = Math.abs(((angle - captionAngle + 540) % 360) - 180);
@@ -100,9 +100,9 @@ export class SmithPeripheralScales extends SmithGroup {
             .attr('transform', `rotate(${rotation},${x},${y})`)
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'central')
-            .attr('font-family', 'var(--smithkit-fontFamily)')
-            .attr('font-size', 'var(--smithkit-scales-peripheralFontSize)')
-            .attr('fill', 'var(--smithkit-scales-textColor)')
+            .attr('font-family', 'var(--smithkit-text-fontFamily)')
+            .attr('font-size', 'var(--smithkit-scales-peripheral-fontSize)')
+            .attr('fill', 'var(--smithkit-scales-text-color)')
             .text(scale.unit === 'λ' ? value.toFixed(2) : String(value));
         }
       }
@@ -126,11 +126,11 @@ export class SmithPeripheralScales extends SmithGroup {
         .append('text')
         .attr('class', 'peripheral-caption')
         .attr('text-anchor', 'middle')
-        .attr('font-family', 'var(--smithkit-fontFamily)')
-        .attr('font-size', 'var(--smithkit-scales-peripheralFontSize)')
+        .attr('font-family', 'var(--smithkit-text-fontFamily)')
+        .attr('font-size', 'var(--smithkit-scales-peripheral-fontSize)')
         .attr('font-weight', 500)
         .attr('letter-spacing', 0.3)
-        .attr('fill', 'var(--smithkit-scales-textColor)')
+        .attr('fill', 'var(--smithkit-scales-text-color)')
         .append('textPath')
         .attr('href', `#${pathId}`)
         .attr('startOffset', '50%')
@@ -140,8 +140,8 @@ export class SmithPeripheralScales extends SmithGroup {
         .attr('class', 'peripheral-indicator')
         .attr('r', 3)
         .attr('visibility', 'hidden')
-        .attr('fill', 'var(--smithkit-scales-indicatorColor)')
-        .attr('stroke', 'var(--smithkit-scales-indicatorOutline)')
+        .attr('fill', 'var(--smithkit-scales-indicator-color)')
+        .attr('stroke', 'var(--smithkit-scales-indicator-outline)')
         .attr('stroke-width', 1);
     });
     this.updateLabelVisibility();

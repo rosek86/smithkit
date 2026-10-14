@@ -62,7 +62,27 @@ export class Smith {
   public readonly layers: ChartLayers;
   public readonly peripheralScales: PeripheralScales;
 
-  constructor(options: SmithOptions = {}) {
+  /** Configure a chart for later mounting with draw(). */
+  constructor(options?: SmithOptions);
+  /** Configure and mount immediately. String targets are CSS selectors, as in draw(). */
+  constructor(target: string | HTMLElement, options?: SmithOptions);
+  constructor(
+    targetOrOptions: string | HTMLElement | SmithOptions = {},
+    configuration?: SmithOptions,
+  ) {
+    const target =
+      typeof targetOrOptions === 'string' || Smith.isHost(targetOrOptions)
+        ? targetOrOptions
+        : undefined;
+    if (target === undefined && configuration !== undefined) {
+      throw new TypeError('A container is required before the second options argument.');
+    }
+    const options =
+      target === undefined
+        ? (targetOrOptions as SmithOptions)
+        : configuration === undefined
+          ? {}
+          : configuration;
     OptionsValidation.chart(options);
     this.referenceOhms =
       options.referenceImpedanceOhms === undefined ? 50 : options.referenceImpedanceOhms;
@@ -81,11 +101,26 @@ export class Smith {
     this.peripheralScales = this.renderer.peripheralScales;
     try {
       this.applyOptions(options);
+      if (target !== undefined) {
+        this.draw(target);
+      }
     } catch (error) {
       // Invalid constructor options must not retain observers or event handlers.
       this.renderer.destroy();
       throw error;
     }
+  }
+
+  private static isHost(value: unknown): value is HTMLElement {
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+    if (typeof HTMLElement !== 'undefined' && value instanceof HTMLElement) {
+      return true;
+    }
+    // Accept elements from another window without requiring that window's globals.
+    const elementType = (value as HTMLElement).ownerDocument?.defaultView?.HTMLElement;
+    return elementType !== undefined && value instanceof elementType;
   }
 
   /** Apply a validated patch. Omitted fields retain their current settings. */
@@ -167,7 +202,7 @@ export class Smith {
     for (const data of this.data) {
       const index = this.traceMetadata.get(data)!.colorIndex;
       if (index !== undefined) {
-        data.setColor(theme.traceColors[index % theme.traceColors.length]);
+        data.setColor(theme.traces.colors[index % theme.traces.colors.length]);
       }
     }
   }
@@ -215,8 +250,8 @@ export class Smith {
           ? MarkerLegend.entries(traces, (id) => this.getMarker(id)!, options.markerLegend)
           : []),
       ],
-      textColor: this.theme.grid.textColor,
-      fontFamily: this.theme.fontFamily,
+      textColor: this.theme.grid.text.color,
+      fontFamily: this.theme.text.fontFamily,
     };
   }
 
@@ -528,7 +563,7 @@ export class Smith {
   }
 
   private createSmithData(values: TraceInput, dataset: number, options: TraceOptions): SmithData {
-    const color = this.theme.traceColors[dataset % this.theme.traceColors.length];
+    const color = this.theme.traces.colors[dataset % this.theme.traces.colors.length];
     const data = this.renderer.createTrace(values, color, options, (marker, dragging) => {
       this.markerDragChanged(marker, dragging);
       const snapshot = this.getMarker(this.markerId(marker));

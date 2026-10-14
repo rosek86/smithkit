@@ -26,7 +26,7 @@ for (const theme of ['light', 'dark'] as const) {
         const [minor, major] = group.children;
         const labels = document.querySelector(`[data-label-layer=${name}]`)!;
         const original = major.innerHTML;
-        layer.setStyle({ stroke: '#123456', majorWidth: 2 });
+        layer.setStyle({ line: { color: '#123456', majorWidth: 2 } });
         layer.setDetail('basic');
         const hidden = group.getAttribute('opacity');
         layer.setVisible(true);

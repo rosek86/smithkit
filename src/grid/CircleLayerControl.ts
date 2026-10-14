@@ -1,7 +1,7 @@
 import { OptionsValidation } from '../OptionsValidation.js';
 import type { ConstQCircles } from './ConstQCircles.js';
 import type { ConstSwrCircles } from './ConstSwrCircles.js';
-import type { CircleLayer, CircleStyle } from '../layers.js';
+import type { CircleLayer, CircleStyleOptions } from '../layers.js';
 import { LayerControl } from './LayerControl.js';
 
 /** Exposes Q/VSWR circle controls without exposing the SVG renderer. */
@@ -20,14 +20,14 @@ export class CircleLayerControl extends LayerControl implements CircleLayer {
     this.layer.visibility(visible);
   }
 
-  public setStyle(style: Partial<CircleStyle>): void {
+  public setStyle(style: CircleStyleOptions): void {
     this.assertAlive();
     OptionsValidation.circleStyle(style);
-    if (style.stroke !== undefined) {
-      this.layer.Stroke = style.stroke;
+    if (style.line?.color !== undefined) {
+      this.layer.Stroke = style.line.color;
     }
-    if (style.strokeWidth !== undefined) {
-      this.layer.StrokeWidth = String(style.strokeWidth);
+    if (style.line?.width !== undefined) {
+      this.layer.StrokeWidth = String(style.line.width);
     }
   }
 

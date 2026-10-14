@@ -333,7 +333,7 @@ test('standalone SVG paints the same chart as the live view', async ({ page }, t
       grid: { detail: 'detailed' },
     });
     chart.draw('#chart');
-    chart.layers.resistance.setStyle({ textColor: '#ab1234', textFontSize: 8 });
+    chart.layers.resistance.setStyle({ text: { color: '#ab1234', fontSize: 8 } });
     chart.addMarker(
       chart.addTrace(
         [

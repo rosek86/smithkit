@@ -60,8 +60,7 @@ Mount a container with a non-zero size:
 ```ts
 import { Smith } from 'smithkit';
 
-const chart = new Smith({ referenceImpedanceOhms: 50 });
-chart.draw('#smith');
+const chart = new Smith('#smith', { referenceImpedanceOhms: 50 });
 const traceId = chart.addTrace(
   [
     [1e9, 0.5, -0.5],
@@ -84,6 +83,7 @@ packed `Float64Array` triples are also supported. Inputs are validated and copie
 By default, the chart shows a labeled standard impedance grid with zoom, cursor
 tracking, and peripheral scales disabled. No markers are added automatically.
 The constructor and `setOptions()` share the same grouped configuration schema.
+To mount later, use `new Smith(options)` and then `chart.draw(elementOrSelector)`.
 
 Create charts in the browser after mounting the host; call `destroy()` on unmount.
 Calculation, formatting, and Touchstone classes also work without a DOM.

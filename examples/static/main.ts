@@ -1,7 +1,6 @@
 import { Smith } from 'smithkit';
 
-const chart = new Smith();
-chart.draw('#chart');
+const chart = new Smith('#chart');
 // Tuples contain frequency in Hz and the real/imaginary parts of Γ.
 chart.addTrace(
   [

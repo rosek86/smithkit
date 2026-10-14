@@ -1,20 +1,34 @@
 import type { Complex } from './math/Complex.js';
 
 export interface GridStyle {
-  stroke: string;
-  /** Non-scaling stroke width in CSS pixels. */
-  majorWidth: number;
-  /** Non-scaling stroke width in CSS pixels. */
-  minorWidth: number;
-  textColor: string;
-  textFontFamily: string;
-  /** Base font size in chart units; adaptive layout enforces a 9 CSS px minimum in the default view. */
-  textFontSize: number;
+  line: {
+    color: string;
+    /** Non-scaling stroke width in CSS pixels. */
+    majorWidth: number;
+    /** Non-scaling stroke width in CSS pixels. */
+    minorWidth: number;
+  };
+  text: {
+    color: string;
+    fontFamily: string;
+    /** Base font size in chart units; adaptive layout enforces a 9 CSS px minimum in the default view. */
+    fontSize: number;
+  };
+}
+/** A grid style patch. Omitted nested properties retain their existing values. */
+export interface GridStyleOptions {
+  line?: Partial<GridStyle['line']>;
+  text?: Partial<GridStyle['text']>;
 }
 export interface CircleStyle {
-  stroke: string;
-  /** Non-scaling stroke width in CSS pixels. */
-  strokeWidth: number;
+  line: {
+    color: string;
+    /** Non-scaling stroke width in CSS pixels. */
+    width: number;
+  };
+}
+export interface CircleStyleOptions {
+  line?: Partial<CircleStyle['line']>;
 }
 
 export type GridDetail = 'basic' | 'standard' | 'detailed';
@@ -26,12 +40,12 @@ export interface GridLayer {
   setLabelsVisible(visible: boolean): void;
   /** Default: standard. Basic shows only the principal normalized values. */
   setDetail(detail: GridDetail): void;
-  setStyle(style: Partial<GridStyle>): void;
+  setStyle(style: GridStyleOptions): void;
 }
 
 export interface CircleLayer {
   setVisible(visible: boolean): void;
-  setStyle(style: Partial<CircleStyle>): void;
+  setStyle(style: CircleStyleOptions): void;
   /** Replace the complete set after validation; duplicates are ignored and empty clears it. */
   setValues(values: readonly number[]): void;
   addValue(value: number): void;

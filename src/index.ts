@@ -21,7 +21,9 @@ export { RfCalculations } from './rf/RfCalculations.js';
 export type { SmithReading } from './rf/RfCalculations.js';
 export type {
   GridStyle,
+  GridStyleOptions,
   CircleStyle,
+  CircleStyleOptions,
   GridLayer,
   GridDetail,
   CircleLayer,

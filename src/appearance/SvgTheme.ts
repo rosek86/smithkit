@@ -5,19 +5,21 @@ export class SvgTheme {
   private constructor() {}
 
   public static apply(element: HTMLElement | SVGElement, theme: SmithTheme): void {
-    for (const [section, value] of Object.entries(theme)) {
+    SvgTheme.tokens(element, theme, '--smithkit');
+    element.style.backgroundColor = theme.background;
+  }
+
+  private static tokens(element: HTMLElement | SVGElement, values: object, prefix: string): void {
+    for (const [key, value] of Object.entries(values)) {
       if (Array.isArray(value)) {
         continue;
       }
       if (typeof value === 'object') {
-        for (const [key, entry] of Object.entries(value)) {
-          const suffix = key.toLowerCase().endsWith('fontsize') ? 'px' : '';
-          element.style.setProperty(`--smithkit-${section}-${key}`, String(entry) + suffix);
-        }
+        SvgTheme.tokens(element, value, `${prefix}-${key}`);
       } else {
-        element.style.setProperty(`--smithkit-${section}`, value);
+        const suffix = key === 'fontSize' ? 'px' : '';
+        element.style.setProperty(`${prefix}-${key}`, String(value) + suffix);
       }
     }
-    element.style.backgroundColor = theme.background;
   }
 }

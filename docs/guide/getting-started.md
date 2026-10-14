@@ -18,8 +18,7 @@ Give the container an explicit size and run the code after it is mounted:
 ```ts
 import { Smith } from 'smithkit';
 
-const chart = new Smith({ referenceImpedanceOhms: 50 }); // Reference impedance in ohms; defaults to 50.
-chart.draw('#smith');
+const chart = new Smith('#smith', { referenceImpedanceOhms: 50 }); // Reference impedance in ohms; defaults to 50.
 const traceId = chart.addTrace(
   [
     { frequencyHz: 1e9, reflectionCoefficient: [0.5, -0.5] },
@@ -42,6 +41,8 @@ and their focus indicators stay above grid labels and sample points. `chart.rese
 
 Construct `Smith` only in a browser, such as your framework's mount hook. Importing
 the package and using its calculation or parsing methods does not require a DOM.
+Pass a CSS selector or HTMLElement first to mount immediately, or use
+`new Smith(options)` and call `draw(target)` when the host becomes available.
 
 The default chart is a static presentation: standard impedance grid with labels,
 no peripheral scales, and zoom and cursor tracking disabled. Markers are optional

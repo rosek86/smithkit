@@ -1,6 +1,6 @@
 import { OptionsValidation } from '../OptionsValidation.js';
 import type { SmithGridLayer } from './SmithGridLayer.js';
-import type { GridDetail, GridLayer, GridStyle } from '../layers.js';
+import type { GridDetail, GridLayer, GridStyleOptions } from '../layers.js';
 import { LayerControl } from './LayerControl.js';
 
 /** Exposes grid controls without exposing the SVG renderer. */
@@ -34,21 +34,20 @@ export class GridLayerControl extends LayerControl implements GridLayer {
     this.changed();
   }
 
-  public setStyle(style: Partial<GridStyle>): void {
+  public setStyle(style: GridStyleOptions): void {
     this.assertAlive();
     OptionsValidation.gridStyle(style);
-    const properties = {
-      stroke: 'Stroke',
-      majorWidth: 'MajorWidth',
-      minorWidth: 'MinorWidth',
-      textColor: 'TextColor',
-      textFontFamily: 'TextFontFamily',
-      textFontSize: 'TextFontSize',
-    } as const;
-    for (const key of Object.keys(properties) as (keyof GridStyle)[]) {
-      const value = style[key];
+    const properties = [
+      ['Stroke', style.line?.color],
+      ['MajorWidth', style.line?.majorWidth],
+      ['MinorWidth', style.line?.minorWidth],
+      ['TextColor', style.text?.color],
+      ['TextFontFamily', style.text?.fontFamily],
+      ['TextFontSize', style.text?.fontSize],
+    ] as const;
+    for (const [property, value] of properties) {
       if (value !== undefined) {
-        this.layer[properties[key]] = String(value);
+        this.layer[property] = String(value);
       }
     }
     this.changed();

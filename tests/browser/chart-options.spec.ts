@@ -6,6 +6,163 @@ test.beforeEach(async ({ page }) => {
   await loadLibrary(page);
 });
 
+test('constructor mounts selectors and elements while supporting deferred mounting', async ({
+  page,
+}) => {
+  const result = await page.evaluate(() => {
+    const { Smith } = window.SmithTest;
+    const host = document.querySelector<HTMLElement>('#chart')!;
+    const first = new Smith('#chart', {
+      grid: { style: { text: { color: '#123456', fontFamily: 'Arial' }, line: { majorWidth: 2 } } },
+    });
+    const initial = getComputedStyle(host.querySelector('[data-label-layer=resistance]')!).fill;
+    first.setOptions({ grid: { style: { text: { color: '#abcdef' } } } });
+    const labels = getComputedStyle(host.querySelector('[data-label-layer=resistance]')!);
+    const font = labels.fontFamily;
+    const color = labels.fill;
+    const width = getComputedStyle(
+      host.querySelector('[data-layer=resistance] > g:nth-child(2) path')!,
+    ).strokeWidth;
+    first.destroy();
+    const second = new Smith(host);
+    const mountedElement = host.querySelectorAll('svg').length;
+    second.destroy();
+    const deferred = new Smith({ grid: { detail: 'basic' } });
+    const beforeDraw = host.childElementCount;
+    deferred.draw(host);
+    const afterDraw = host.querySelectorAll('svg').length;
+    deferred.destroy();
+    const frame = document.createElement('iframe');
+    document.body.append(frame);
+    const framed = new Smith(frame.contentDocument!.body);
+    const mountedFrame = frame.contentDocument!.querySelectorAll('svg').length;
+    framed.destroy();
+    frame.remove();
+    return {
+      initial,
+      font,
+      color,
+      width,
+      mountedElement,
+      beforeDraw,
+      afterDraw,
+      mountedFrame,
+      remaining: host.childElementCount,
+    };
+  });
+  expect(result).toEqual({
+    initial: 'rgb(18, 52, 86)',
+    font: 'Arial',
+    color: 'rgb(171, 205, 239)',
+    width: '2px',
+    mountedElement: 1,
+    beforeDraw: 0,
+    afterDraw: 1,
+    mountedFrame: 1,
+    remaining: 0,
+  });
+});
+
+test('failed constructor mounts release observers and invalid nested options mount nothing', async ({
+  page,
+}) => {
+  const result = await page.evaluate(() => {
+    const NativeObserver = window.ResizeObserver;
+    let created = 0;
+    let disconnected = 0;
+    window.ResizeObserver = class extends NativeObserver {
+      constructor(callback: ResizeObserverCallback) {
+        super(callback);
+        created++;
+      }
+      disconnect(): void {
+        disconnected++;
+        super.disconnect();
+      }
+    };
+    const failures: string[] = [];
+    try {
+      for (const target of ['#missing', '[']) {
+        try {
+          new window.SmithTest.Smith(target);
+        } catch (error) {
+          failures.push((error as Error).name);
+        }
+      }
+      try {
+        new window.SmithTest.Smith('#chart', { grid: { style: { text: { fontSize: -1 } } } });
+      } catch (error) {
+        failures.push((error as Error).name);
+      }
+      return { created, disconnected, failures, mounted: document.querySelectorAll('svg').length };
+    } finally {
+      window.ResizeObserver = NativeObserver;
+    }
+  });
+  expect(result).toEqual({
+    created: 2,
+    disconnected: 2,
+    failures: ['Error', 'SyntaxError', 'RangeError'],
+    mounted: 0,
+  });
+});
+
+test('nested style patches preserve siblings and reject invalid children atomically', async ({
+  page,
+}) => {
+  const result = await page.evaluate(() => {
+    const chart = new window.SmithTest.Smith('#chart', {
+      grid: {
+        style: {
+          text: { fontFamily: 'Arial', color: '#123456' },
+          line: { color: 'blue', majorWidth: 2 },
+        },
+        layers: { resistance: { style: { text: { color: 'red' } } } },
+      },
+    });
+    const read = () => {
+      const labels = getComputedStyle(document.querySelector('[data-label-layer=resistance]')!);
+      const line = getComputedStyle(
+        document.querySelector('[data-layer=resistance] > g:nth-child(2) path')!,
+      );
+      return {
+        font: labels.fontFamily,
+        color: labels.fill,
+        line: line.stroke,
+        width: line.strokeWidth,
+      };
+    };
+    const before = read();
+    const failures: string[] = [];
+    for (const style of [
+      { line: { color: 'green' }, text: { fontSize: -1 } },
+      { text: { unknown: true } },
+      { text: null },
+      { textColor: 'purple' },
+    ]) {
+      try {
+        chart.layers.resistance.setStyle(style as unknown as import('../../src').GridStyleOptions);
+      } catch (error) {
+        failures.push((error as Error).name);
+      }
+    }
+    const afterRejected = read();
+    chart.layers.resistance.setStyle({ text: {}, line: { color: undefined } });
+    const afterEmpty = read();
+    chart.destroy();
+    return { before, afterRejected, afterEmpty, failures };
+  });
+  expect(result.before).toEqual({
+    font: 'Arial',
+    color: 'rgb(255, 0, 0)',
+    line: 'rgb(0, 0, 255)',
+    width: '2px',
+  });
+  expect(result.afterRejected).toEqual(result.before);
+  expect(result.afterEmpty).toEqual(result.before);
+  expect(result.failures).toEqual(['RangeError', 'TypeError', 'TypeError', 'TypeError']);
+});
+
 test('constructor settings apply shared defaults, then per-layer overrides without retaining input', async ({
   page,
 }) => {
@@ -18,19 +175,19 @@ test('constructor settings apply shared defaults, then per-layer overrides witho
       grid: {
         detail: 'basic',
         labelsVisible: false,
-        style: { stroke: '#123456', majorWidth: 2 },
+        style: { line: { color: '#123456', majorWidth: 2 } },
         layers: {
-          resistance: { labelsVisible: true, style: { stroke: '#abcdef' } },
+          resistance: { labelsVisible: true, style: { line: { color: '#abcdef' } } },
           conductance: { visible: true, detail: 'standard' },
         },
       },
       circles: {
-        q: { visible: true, values: [1, 2, 2], style: { stroke: '#654321', strokeWidth: 3 } },
-        vswr: { visible: true, values: [], style: { stroke: '#fedcba' } },
+        q: { visible: true, values: [1, 2, 2], style: { line: { color: '#654321', width: 3 } } },
+        vswr: { visible: true, values: [], style: { line: { color: '#fedcba' } } },
       },
     };
     const chart = new window.SmithTest.Smith(options);
-    options.grid!.style!.majorWidth = 8;
+    options.grid!.style!.line!.majorWidth = 8;
     options.grid!.detail = 'detailed';
     options.circles!.q!.values = [5];
     chart.draw('#chart');
@@ -137,7 +294,7 @@ test('invalid constructor settings reject and disconnect allocated observers', a
       { peripheralScales: { phase: false } },
       { grid: { layers: [] } },
       { grid: { detail: 'invalid' } },
-      { grid: { style: { majorWidth: -1 } } },
+      { grid: { style: { line: { majorWidth: -1 } } } },
       { grid: { layers: { resistance: { labelsVisible: 1 } } } },
       { circles: { q: { values: [1, 0] } } },
       { circles: { vswr: { values: [0.5] } } },
@@ -164,8 +321,8 @@ test('shared detail and circle replacement preserve presentation and reject inva
   const result = await page.evaluate(() => {
     const values = [1, 2];
     const chart = new window.SmithTest.Smith({
-      grid: { labelsVisible: false, style: { stroke: '#123456' } },
-      circles: { q: { values, style: { stroke: '#654321' } } },
+      grid: { labelsVisible: false, style: { line: { color: '#123456' } } },
+      circles: { q: { values, style: { line: { color: '#654321' } } } },
     });
     chart.draw('#chart');
     values.push(5);
@@ -441,7 +598,7 @@ test('setOptions patches supplied fields and renormalizes data without resetting
     const chart = new window.SmithTest.Smith({
       appearance: { theme: 'dark' },
       interaction: { zoom: true },
-      grid: { style: { stroke: '#123456', majorWidth: 2 } },
+      grid: { style: { line: { color: '#123456', majorWidth: 2 } } },
     });
     chart.draw('#chart');
     const trace = chart.addTrace([{ frequencyHz: 1e9, reflectionCoefficient: [0.5, 0] }]);
@@ -462,8 +619,8 @@ test('setOptions patches supplied fields and renormalizes data without resetting
     const options: import('../../src').SmithOptions = {
       referenceImpedanceOhms: 75,
       interaction: { cursor: true },
-      grid: { detail: 'basic', layers: { resistance: { style: { majorWidth: 3 } } } },
-      circles: { vswr: { values, visible: true, style: { stroke: '#abcdef' } } },
+      grid: { detail: 'basic', layers: { resistance: { style: { line: { majorWidth: 3 } } } } },
+      circles: { vswr: { values, visible: true, style: { line: { color: '#abcdef' } } } },
       peripheralScales: { visible: true },
     };
     chart.setOptions(options);
@@ -538,11 +695,11 @@ test('configuration patches reject all invalid fields before any mutation, inclu
     const svg = document.querySelector('svg')!;
     const before = svg.outerHTML;
     const patches: unknown[] = [
-      { appearance: { theme: 'dark' }, grid: { style: { majorWidth: -1 } } },
+      { appearance: { theme: 'dark' }, grid: { style: { line: { majorWidth: -1 } } } },
       { interaction: { cursor: true }, circles: { vswr: { values: [2, 0] } } },
       { grid: { detail: 'basic', layers: { resistance: { visible: 'false' } } } },
       { grid: { style: { unknown: 1 } } },
-      { grid: { detail: 'basic', style: { textColor: null } } },
+      { grid: { detail: 'basic', style: { text: { color: null } } } },
       { appearance: { unknown: true } },
       {
         referenceImpedanceOhms: 75,

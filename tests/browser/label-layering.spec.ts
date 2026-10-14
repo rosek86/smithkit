@@ -24,7 +24,7 @@ test('grid and scale labels stay above geometry after updates, with markers on t
       const labels = document.querySelector(`[data-label-layer=${name}]`)!;
       layer.setVisible(false);
       const hidden = labels.getAttribute('opacity');
-      layer.setStyle({ textColor: '#123456', textFontSize: 8 });
+      layer.setStyle({ text: { color: '#123456', fontSize: 8 } });
       layer.setDetail('standard');
       layer.setVisible(true);
       const shown = labels.getAttribute('opacity');

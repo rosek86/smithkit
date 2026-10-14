@@ -1,45 +1,50 @@
 /** Resolved appearance shared by charts and independent scales. Lengths are positive. */
 export interface SmithTheme {
   background: string;
-  fontFamily: string;
+  text: { fontFamily: string };
   grid: {
-    stroke: string;
-    textColor: string;
-    majorWidth: number;
-    minorWidth: number;
-    fontSize: number;
+    line: { color: string; majorWidth: number; minorWidth: number };
+    text: { color: string; fontSize: number };
   };
-  boundary: { stroke: string; width: number };
-  circles: { q: string; vswr: string; width: number };
+  boundary: { color: string; width: number };
+  circles: {
+    q: { color: string; width: number };
+    vswr: { color: string; width: number };
+  };
   scales: {
-    stroke: string;
-    boundaryColor: string;
-    textColor: string;
-    valueColor: string;
-    indicatorColor: string;
-    indicatorOutline: string;
-    fontSize: number;
-    titleFontSize: number;
-    valueFontSize: number;
-    peripheralFontSize: number;
+    line: { color: string };
+    boundary: { color: string };
+    text: { color: string; fontSize: number };
+    title: { fontSize: number };
+    value: { color: string; fontSize: number };
+    indicator: { color: string; outline: string };
+    peripheral: { fontSize: number };
   };
   cursor: {
-    pointColor: string;
-    impedanceColor: string;
-    admittanceColor: string;
-    pointSize: number;
-    lineWidth: number;
+    point: { color: string; size: number };
+    impedance: { color: string };
+    admittance: { color: string };
+    line: { width: number };
   };
-  marker: { outlineColor: string; textColor: string; focusColor: string; focusHaloColor: string };
-  traceColors: readonly string[];
+  marker: {
+    outline: { color: string };
+    text: { color: string };
+    focus: { color: string; halo: string };
+  };
+  traces: { colors: readonly string[] };
 }
 
+/** Each visual group can be overridden independently, down to individual properties. */
 export type SmithThemeOverrides = {
-  [K in keyof SmithTheme]?: SmithTheme[K] extends readonly string[]
-    ? readonly string[]
-    : SmithTheme[K] extends object
-      ? Partial<SmithTheme[K]>
-      : SmithTheme[K];
+  [K in keyof SmithTheme]?: SmithTheme[K] extends string
+    ? string
+    : {
+        [P in keyof SmithTheme[K]]?: SmithTheme[K][P] extends readonly string[]
+          ? readonly string[]
+          : SmithTheme[K][P] extends object
+            ? Partial<SmithTheme[K][P]>
+            : SmithTheme[K][P];
+      };
 };
 
 /** Each application replaces the previous appearance, starting from the named preset. */
