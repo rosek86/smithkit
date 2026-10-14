@@ -1,13 +1,83 @@
+:root {
+  --text: #e4e7eb;
+  --page: #111315;
+  --surface: #191c20;
+  --muted: #a0a7b2;
+  --accent: #a0bce5;
+  --border: #30353c;
+  --input-border: #4d5560;
+  --hover: #272c33;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-synthesis: none;
+  color: var(--text);
+  background: var(--page);
+  color-scheme: dark;
+  line-height: 1.6;
+}
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
-  padding: 24px;
-  font-family: system-ui, sans-serif;
-  color: #1e293b;
-  background: #f8fafc;
 }
 main {
-  max-width: 760px;
+  max-width: 1024px;
   margin: auto;
+  padding: 32px;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  font-size: 14px;
+}
+a {
+  color: var(--accent);
+  text-underline-offset: 4px;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+h1 {
+  font-size: clamp(28px, 4vw, 36px);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin: 8px 0 16px;
+}
+h2 {
+  font-size: 20px;
+}
+header {
+  margin-bottom: 32px;
+  max-width: 720px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+.hint,
+header > p:last-child {
+  color: var(--muted);
+}
+.preview {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 32px;
 }
 .controls {
   display: flex;
@@ -16,29 +86,54 @@ main {
   gap: 12px;
 }
 button {
-  padding: 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--input-border);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) {
+  background: var(--hover);
+}
+button:disabled {
+  opacity: 0.6;
+}
+input {
+  accent-color: var(--accent);
 }
 #chart {
-  width: min(100%, 520px);
+  width: 100%;
+  max-width: 520px;
   aspect-ratio: 1;
   background: white;
-  margin-block: 16px;
+  margin: 20px auto 24px;
 }
 #chart.compact {
-  width: min(100%, 360px);
+  max-width: 360px;
 }
 output {
   display: block;
   min-height: 1.5em;
+  margin: 16px 0;
   font-variant-numeric: tabular-nums;
 }
-
 pre {
   overflow: auto;
-  padding: 16px;
-  background: #e8eef4;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--page);
   font-size: 13px;
+  line-height: 1.65;
 }
-nav a {
-  color: #17695f;
+@media (max-width: 600px) {
+  main {
+    padding: 20px 16px;
+  }
+  .preview {
+    padding: 12px;
+  }
 }

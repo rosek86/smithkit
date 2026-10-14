@@ -3,28 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smithkit integration example</title>
+    <title>Mount, update, and destroy · Smithkit examples</title>
   </head>
   <body>
     <main>
-      <nav>
-        <a href="https://rosek86.github.io/smithkit/examples/index.html">All examples</a> ·
+      <nav aria-label="Examples navigation">
+        <a href="https://rosek86.github.io/smithkit/examples/index.html">← All examples</a>
         <a href="https://github.com/rosek86/smithkit/blob/main/examples/basic/main.ts"
           >View TypeScript source</a
         >
         <a href="https://rosek86.github.io/smithkit/api/">API documentation</a>
       </nav>
-      <h1>Smithkit integration example</h1>
-      <p>Mount a chart, replace a measured sweep, resize its container, and release it.</p>
-      <div class="controls">
-        <button id="mount" type="button">Mount chart</button>
-        <button id="update" type="button">Replace sweep</button>
-        <button id="unmount" type="button">Unmount chart</button>
-        <label><input id="compact" type="checkbox" /> Compact chart</label>
-      </div>
-      <div id="chart" aria-label="Smith chart"></div>
-      <output id="reading" aria-live="polite">No chart mounted.</output>
-      <p>Drag the marker to select a sample. Replacing the sweep preserves its frequency.</p>
+      <header>
+        <p class="eyebrow">SMITHKIT EXAMPLES</p>
+        <h1>Mount, update, and destroy</h1>
+        <p>Mount a chart, replace a measured sweep, resize its container, and release it.</p>
+      </header>
+      <section class="preview" aria-label="Example preview">
+        <div class="controls">
+          <button id="mount" type="button">Mount chart</button>
+          <button id="update" type="button">Replace sweep</button>
+          <button id="unmount" type="button">Unmount chart</button>
+          <label><input id="compact" type="checkbox" /> Compact chart</label>
+        </div>
+        <div id="chart" aria-label="Smith chart"></div>
+        <output id="reading" aria-live="polite">No chart mounted.</output>
+        <p class="hint">
+          Drag the marker to select a sample. Replacing the sweep preserves its frequency.
+        </p>
+      </section>
       <section>
         <h2>TypeScript</h2>
         <pre><code id="source"></code></pre>

@@ -1,7 +1,21 @@
 :root {
-  font-family: Inter, system-ui, sans-serif;
-  color: #e2e8f0;
-  background: #0b1220;
+  --text: #e4e7eb;
+  --page: #111315;
+  --surface: #191c20;
+  --muted: #a0a7b2;
+  --accent: #a0bce5;
+  --border: #30353c;
+  --input-border: #4d5560;
+  --hover: #272c33;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-synthesis: none;
+  color: var(--text);
+  background: var(--page);
   color-scheme: dark;
   line-height: 1.6;
 }
@@ -20,10 +34,14 @@ nav {
   display: flex;
   flex-wrap: wrap;
   gap: 12px 24px;
-  margin-bottom: 40px;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  font-size: 14px;
 }
 a {
-  color: #5eead4;
+  color: var(--accent);
   text-underline-offset: 4px;
 }
 a:focus-visible,
@@ -31,11 +49,12 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 summary:focus-visible {
-  outline: 2px solid #5eead4;
+  outline: 2px solid var(--accent);
   outline-offset: 4px;
 }
 h1 {
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(28px, 4vw, 36px);
+  letter-spacing: -0.025em;
   line-height: 1.2;
   margin: 8px 0 16px;
 }
@@ -47,14 +66,14 @@ header {
   max-width: 720px;
 }
 .eyebrow {
-  color: #5eead4;
+  color: var(--accent);
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
 }
 .hint,
 header > p:last-child,
 footer {
-  color: #aab8ca;
+  color: var(--muted);
 }
 .cards {
   display: grid;
@@ -62,31 +81,36 @@ footer {
   gap: 20px;
 }
 .card {
-  display: block;
-  border: 1px solid #34435a;
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   padding: 24px;
   color: inherit;
   text-decoration: none;
-  background: #111c2e;
+  background: var(--surface);
 }
 .card h2 {
-  margin-top: 0;
+  margin: 0 0 8px;
 }
 .card p {
-  color: #aab8ca;
+  margin: 0 0 20px;
+  color: var(--muted);
 }
 .card span {
-  color: #5eead4;
+  margin-top: auto;
+  font-size: 14px;
+  color: var(--accent);
 }
 .card:hover {
-  border-color: #5eead4;
+  border-color: var(--input-border);
+  background: var(--hover);
 }
 .preview {
   padding: 20px;
-  background: #111c2e;
-  border: 1px solid #34435a;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   margin-bottom: 32px;
 }
 #chart {
@@ -99,9 +123,10 @@ footer {
 button,
 select {
   font: inherit;
+  font-size: 13px;
   color: inherit;
-  background: #17253b;
-  border: 1px solid #52627a;
+  background: var(--surface);
+  border: 1px solid var(--input-border);
   padding: 8px 14px;
   border-radius: 6px;
 }
@@ -131,9 +156,15 @@ button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
+button:hover:not(:disabled) {
+  background: var(--hover);
+}
+input {
+  accent-color: var(--accent);
+}
 input[type='range'] {
   width: min(240px, 100%);
-  accent-color: #5eead4;
+  accent-color: var(--accent);
 }
 label,
 .controls {
@@ -150,9 +181,9 @@ output {
 pre {
   overflow: auto;
   padding: 20px;
-  border: 1px solid #34435a;
-  border-radius: 8px;
-  background: #080e19;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--page);
   font-size: 13px;
   line-height: 1.65;
 }
@@ -161,6 +192,9 @@ summary {
 }
 footer {
   margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
 }
 @media (max-width: 600px) {
   main {

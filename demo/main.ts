@@ -23,39 +23,138 @@ function element<T extends HTMLElement>(id: string): T {
 
 const settingsDialog = element<HTMLDialogElement>('chart-settings');
 const settingsButton = element<HTMLButtonElement>('open-settings');
+const desktopSettings = window.matchMedia('(min-width: 1000px)');
+const chartPanel = element('smith').closest<HTMLElement>('.chart-panel')!;
+const scalesPanel = element('parameter-panel').closest<HTMLElement>('.scales-panel')!;
+const settingsBackdrop = element('settings-backdrop');
+const settingsBackground = document.querySelectorAll<HTMLElement>(
+  'main > header, main > .toolbar, .scales-panel, .workspace > aside, main > footer',
+);
+
 function positionSettingsDialog(): void {
-  if (!settingsDialog.open || !window.matchMedia('(min-width: 1000px)').matches) {
+  if (!settingsDialog.open || !desktopSettings.matches) {
     return;
   }
-  const anchor = element('parameter-panel').closest<HTMLElement>('.scales-panel')!;
-  const bounds = anchor.getBoundingClientRect();
-  // Align with the readout panel while reserving at least 320 px for settings on short screens.
-  const top = Math.max(16, Math.min(bounds.top, window.innerHeight - 336));
-  settingsDialog.style.setProperty('--settings-top', `${top}px`);
-  settingsDialog.style.setProperty('--settings-left', `${bounds.left}px`);
-  settingsDialog.style.setProperty('--settings-width', `${bounds.width}px`);
+  const chartBounds = chartPanel.getBoundingClientRect();
+  const scalesBounds = scalesPanel.getBoundingClientRect();
+  settingsDialog.style.setProperty('--settings-top', `${chartBounds.top}px`);
+  settingsDialog.style.setProperty('--settings-left', `${scalesBounds.left}px`);
+  settingsDialog.style.setProperty('--settings-width', `${scalesBounds.width}px`);
+  settingsDialog.style.setProperty('--settings-height', `${chartBounds.height}px`);
 }
-settingsButton.addEventListener('click', () => {
-  settingsDialog.showModal();
+
+function setDesktopSettingsActive(active: boolean): void {
+  document.body.classList.toggle('settings-active', active);
+  settingsBackdrop.hidden = !active;
+  for (const region of settingsBackground) {
+    region.inert = active;
+  }
+}
+
+function showSettings(): void {
+  setDesktopSettingsActive(desktopSettings.matches);
+  if (desktopSettings.matches) {
+    // A non-modal dialog leaves the chart available for zoom and marker interaction.
+    settingsDialog.show();
+  } else {
+    settingsDialog.showModal();
+  }
   positionSettingsDialog();
-});
+}
+
+settingsButton.addEventListener('click', showSettings);
 window.addEventListener('resize', positionSettingsDialog);
 window.addEventListener('scroll', positionSettingsDialog, { passive: true });
-settingsDialog.addEventListener('close', () => settingsButton.focus({ preventScroll: true }));
+const settingsResizeObserver = new ResizeObserver(positionSettingsDialog);
+settingsResizeObserver.observe(chartPanel);
+settingsResizeObserver.observe(scalesPanel);
+desktopSettings.addEventListener('change', () => {
+  if (settingsDialog.open) {
+    settingsDialog.close();
+    showSettings();
+  }
+});
+
+let settingsPressOutside = false;
+function outsideSettings(event: MouseEvent): boolean {
+  if (event.target === settingsBackdrop) {
+    return true;
+  }
+  const bounds = settingsDialog.getBoundingClientRect();
+  return (
+    event.target === settingsDialog &&
+    (event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom)
+  );
+}
+document.addEventListener('pointerdown', (event) => {
+  settingsPressOutside = settingsDialog.open && event.button === 0 && outsideSettings(event);
+});
+document.addEventListener('pointercancel', () => {
+  settingsPressOutside = false;
+});
+document.addEventListener('click', (event) => {
+  if (settingsPressOutside && outsideSettings(event)) {
+    settingsDialog.close();
+  }
+  settingsPressOutside = false;
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && settingsDialog.open && desktopSettings.matches) {
+    event.preventDefault();
+    settingsDialog.close();
+  }
+});
+settingsDialog.addEventListener('close', () => {
+  // A breakpoint change closes and immediately reopens the dialog in its new mode.
+  if (settingsDialog.open) {
+    return;
+  }
+  settingsPressOutside = false;
+  setDesktopSettingsActive(false);
+  settingsButton.focus({ preventScroll: true });
+});
+
+function demoAppearance(theme: SmithAppearance['theme']): SmithAppearance {
+  return {
+    theme,
+    ...(theme === 'dark'
+      ? {
+          overrides: {
+            background: '#191c20',
+            fontFamily: 'Arial, sans-serif',
+            grid: { stroke: '#727984', textColor: '#c7cbd1' },
+            boundary: { stroke: '#9da3ad' },
+            scales: {
+              stroke: '#727984',
+              boundaryColor: '#9da3ad',
+              textColor: '#b5bcc5',
+              valueColor: '#e4e7eb',
+              indicatorColor: '#e9ac59',
+              indicatorOutline: '#191c20',
+            },
+            cursor: { pointColor: '#a0bce5', impedanceColor: '#a0bce5' },
+          },
+        }
+      : {}),
+  };
+}
 
 const smith = new Smith({
-  appearance: { theme: 'dark' },
+  appearance: demoAppearance('dark'),
   interaction: { zoom: true, cursor: true },
   peripheralScales: { visible: true },
   grid: { detail: 'detailed' },
 });
 smith.draw('#smith');
-const scales = new SmithScales({ theme: 'dark' });
+const scales = new SmithScales(demoAppearance('dark'));
 scales.draw('#smith-scales');
 
 element<HTMLSelectElement>('theme').addEventListener('change', (event) => {
   const theme = (event.target as HTMLSelectElement).value as SmithAppearance['theme'];
-  const appearance: SmithAppearance = { theme };
+  const appearance = demoAppearance(theme);
   smith.setOptions({ appearance });
   scales.setAppearance(appearance);
   document.documentElement.dataset.theme = theme;

@@ -162,7 +162,11 @@ those individual overrides. Invalid appearance settings throw before making chan
 
 SVG exports resolve the appearance without requiring theme CSS. A configured
 background is included in the exported image; `transparent` preserves transparency.
-The **Theme** selector in the demo's **Chart settings** dialog updates both library components and the demo UI.
+The **Theme** selector in the demo's top-right header updates both library components and the demo UI.
+On desktop, **Chart settings** opens beside the chart at the same height. The chart
+remains interactive, including zoom and markers, while the rest of the page is
+dimmed and inactive. Click the dimmed area, press Escape, or use Close to dismiss
+settings. On smaller screens, settings use a modal dialog.
 
 ## Grid layers
 
