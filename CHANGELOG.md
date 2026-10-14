@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.6.0 — 2026-10-14
+
+- Record native Firefox 114 and Safari 26.6 verification. Describe browser compatibility through completed tests, separately from compilation targets.
+- Refresh README with a chart screenshot and move migration instructions to dedicated guides.
 
 - Apply the same SVG output sizing and limits with omitted or empty options for charts and scales. Treat an explicit `undefined` imaginary argument in `Complex.from()` as zero, matching the optional signature.
 
@@ -9,7 +12,7 @@
 - Track a generated public API signature report and reject missing/stale reports or unexported local types in public signatures during CI and release checks. Add explicit report update/check commands and regression coverage.
 
 - Add React and Angular integration examples to the gallery, covering data/configuration updates, marker events, resize, mounting, and cleanup with copyable components.
-- Verify React development StrictMode and Angular strict templates; check installed consumers and browser behavior in Firefox alongside Chromium/WebKit. Record the TypeScript 5.7.3 consumer floor and proposed browser baseline.
+- Verify React development StrictMode and Angular strict templates; check installed consumers and browser behavior in Firefox alongside Chromium/WebKit. Record the TypeScript 5.7.3 consumer floor and tested browser environments.
 - Measure label collisions using browser paint bounds, preserve compact zero/high-value labels, and remove phantom stroke extents from invisible pointer targets in Firefox. Refresh font-relative offsets after resizing so WebKit exports match the live labels.
 
 ## 0.5.0 — 2026-10-09

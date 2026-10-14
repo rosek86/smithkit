@@ -27,7 +27,7 @@ npm run dev
 ```
 
 To test local library changes, run `npm pack` from the repository root, then
-`npm install --no-save --package-lock=false ../smithkit-0.5.0.tgz` in `examples`.
+`npm install --no-save --package-lock=false ../smithkit-0.6.0.tgz` in `examples`.
 Use the archive's absolute path when running a copied gallery.
 
 `npm run build` creates the complete standalone gallery in `dist/`. It imports the
