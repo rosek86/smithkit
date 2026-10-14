@@ -66,7 +66,7 @@ archive path after `--`, so release checks can reuse exactly the archive being s
 
 From a clean committed checkout, run `npm run prepare:release` for all source checks,
 all three demo browser suites, package-consumer checks, and the standalone example. It
-writes `artifacts/smithkit-0.5.0.tgz` and `artifacts/release-manifest.json`, containing
+writes `artifacts/smithkit-<version>.tgz` and `artifacts/release-manifest.json`, containing
 the commit, SHA-256, npm integrity, and archive sizes. Nothing is published.
 Install all three engines first with `npx playwright install chromium webkit firefox`.
 `PLAYWRIGHT_CHANNEL=chrome` can select installed Chrome for local checks; the script
