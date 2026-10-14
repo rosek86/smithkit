@@ -279,11 +279,11 @@ exact SVG bytes/pixels, demo controls/URLs, dependency versions, event timer
 intervals, or error-message text. The root package exports are the supported
 boundary; use appearance/layer APIs instead of editing generated DOM.
 
-The proposed runtime/compiler floors and their verification limits are recorded
-in [compatibility](compatibility.md): TypeScript 5.7.3, Chrome/Edge 111, Firefox 114,
-and Safari/iOS 16.4. Raising confirmed floors in 1.x is a major change. Current
-engine tests establish behavior in the installed Playwright versions, not every
-historical baseline browser or an actual iOS device.
+[Compatibility](compatibility.md) records tested browser versions and environments,
+automated engine coverage, and the TypeScript 5.7.3 consumer compiler check.
+Browser build targets are documented separately from test evidence. The browser
+policy lists completed verification rather than promising minimum browser versions.
+Raising the supported TypeScript minimum during 1.x requires a major release.
 
 ## Gates before declaring 1.0
 
@@ -293,9 +293,9 @@ historical baseline browser or an actual iOS device.
    justifies separately maintained wrappers.
 2. Keep package, isolated examples, and all three browser suites required for
    releases. Confirm published-archive behavior, not just the demo's source alias.
-3. Verify the proposed browser floors on actual baseline browsers, including
-   Safari/iOS, and record the confirmed baseline and compatibility policy in the
-   1.0 release notes. No further architectural rewrite is required by this review.
+3. Link the recorded browser/compiler test evidence and API compatibility policy
+   in the 1.0 release notes. Extend the evidence as additional verification is
+   completed. No further architectural rewrite is required by this review.
 
 Complex reference impedances, full multiport Touchstone matrices/renormalization, Touchstone 2.x, additional renderers, and
 application session storage are outside the present scope. Their absence does not

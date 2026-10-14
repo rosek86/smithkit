@@ -1,13 +1,25 @@
 # Browser and TypeScript compatibility
 
-This is the proposed baseline for the 1.0 API. The library remains at 0.x;
-see the [API review](api-review.md) for the intended compatibility guarantee.
+This document records tested browser and compiler versions, the checks performed,
+and the build targets used by the project. Browser results apply to the recorded
+versions and environments; they are not a minimum-version support guarantee.
+See the [API review](api-review.md) for the intended 1.0 API compatibility contract.
 
-## Browser baseline
+## Automated browser tests
 
-Smithkit targets Chrome 111+, Edge 111+, Firefox 114+, and Safari/iOS Safari 16.4+.
-These floors match the [Vite 8 default production targets](https://vite.dev/guide/build).
-The demo and standalone gallery explicitly use the same targets. Applications
+The automated checks run the Chromium, Firefox, and WebKit versions pinned by
+Playwright in the lockfile, on CI's Linux runner and during local development.
+They cover rendering, interaction, SVG/PNG export, resize, destruction, and the
+installed-package gallery. These engine tests are recorded separately from the
+native-browser checks below. The engine versions can be inspected through the
+installed Playwright browsers.
+
+## Build targets and runtime requirements
+
+The demo, standalone gallery, and native-browser test fixture compile for
+`chrome111`, `edge111`, `firefox114`, and `safari16.4`, matching the
+[Vite 8 default production targets](https://vite.dev/guide/build).
+These are compilation settings, not evidence of browser testing. Applications
 using the ESM package must configure their own bundler targets; Smithkit supplies
 ES2022 modules and does not install polyfills.
 
@@ -16,43 +28,22 @@ PNG export also uses canvas, Blob, and object URLs. No separate stylesheet is
 required. Hosts must have a non-zero size when mounted. Browser text metrics
 can differ, so exact pixels and identical label density are not guaranteed.
 
-The automated checks run the Chromium, Firefox, and WebKit versions pinned by
-Playwright in the lockfile, on CI's Linux runner and during local development.
-They cover rendering, interaction, SVG/PNG export, resize, destruction, and the
-installed-package gallery. WebKit testing is useful Safari coverage, but is not
-a test of the Safari application or a physical iOS device. Edge is not run
-separately.
-
-**The minimum versions above are proposed build/support targets, not a fully
-verified support guarantee.** The native-browser evidence below covers Firefox 114 and Safari 26.6;
-it does not confirm every baseline browser or patch.
-Before declaring 1.0, verify the remaining floors on actual browsers,
-including Safari/iOS, or adjust the documented baseline.
-The currently tested engines and their versions can be inspected through the
-installed Playwright browsers. Raising a confirmed support floor during 1.x will
-require a major release.
-
 ## Native-browser verification
 
 Last checked: **2026-10-14**. Safari 26.6 was tested against library source at
 [`cd6b871`](https://github.com/rosek86/smithkit/commit/cd6b871521c6a4a5348d26b5bac370979e7e077b);
 Firefox 114 was tested against
 [`b5b12a9`](https://github.com/rosek86/smithkit/commit/b5b12a93d31a597ca9c596a16f43797554e479f3).
-The integration CI failure from PR #50 was fixed in
-[PR #51](https://github.com/rosek86/smithkit/pull/51); the subsequent
-[main CI run passed](https://github.com/rosek86/smithkit/actions/runs/38351309947).
+The [main CI run](https://github.com/rosek86/smithkit/actions/runs/38351309947)
+also passed the automated integration checks.
 
-| Browser                   | Evidence                                                                                      | Remaining work before confirming the floor                                    |
-| ------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Firefox 114.0 and 114.0.2 | Native Firefox binaries, geckodriver 0.33.0, headless on macOS 26.6: smoke checks passed.     | Other operating systems were not tested.                                      |
-| Chrome 111                | No historical Chrome run. Current Playwright Chromium coverage is separate.                   | Test the actual baseline Chrome build.                                        |
-| Edge 111                  | No native Edge run.                                                                           | Test the actual baseline Edge build.                                          |
-| Safari 26.6               | Native SafariDriver, visible browser on macOS 26.6: smoke checks passed; screenshot reviewed. | Confirms this build only; Safari 16.4 remains unverified.                     |
-| Safari 16.4               | No native Safari 16.4 run.                                                                    | Use a compatible macOS/device environment to test the proposed floor.         |
-| iOS Safari 16.4           | No physical device or device-testing service available.                                       | Test on a real device, including touch gestures and export/download behavior. |
+| Browser                   | Environment                                                | Result                                                    |
+| ------------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| Firefox 114.0 and 114.0.2 | Native Firefox, geckodriver 0.33.0, headless on macOS 26.6 | Smoke checks passed; the 114.0.2 screenshot was reviewed. |
+| Safari 26.6               | Native SafariDriver, visible browser on macOS 26.6         | Smoke checks passed; screenshot reviewed.                 |
 
 The [Firefox 114.0 report](browser-checks/firefox-114.0-macos.json) records the
-exact floor check. Its dirty-checkout flag reflects the new test harness and
+exact version check. Its dirty-checkout flag reflects the new test harness and
 documentation; library sources were unchanged from the Firefox revision above. The
 114.0.2 screenshot was also reviewed for labels and marker rendering.
 
@@ -64,7 +55,7 @@ remote automation was enabled manually before this run. The test session was
 closed after completion; the setting can now be disabled again.
 
 The smoke check exercises the emitted `dist/lib` package, bundled for
-the declared browser targets. It checks packed Touchstone import, SVG paths and
+the build targets listed above. It checks packed Touchstone import, SVG paths and
 labels (including Unicode), text measurement, radial scales, data/options updates
 without replacing the SVG, ResizeObserver, the 44px marker target, a synthetic
 wheel event, keyboard marker movement through WebDriver, focus/ARIA/events,
@@ -97,7 +88,7 @@ The runner rebuilds the library, serves only its test fixture on loopback, opens
 a new WebDriver session, and closes the session and HTTP server in `finally`.
 It does not start or stop the vendor driver. `--browser chrome` and
 `--browser MicrosoftEdge` accept the same optional `--binary` and `--headless`
-flags. These adapters have not yet been verified against native Chrome/Edge.
+flags.
 The driver must run on the same computer: the loopback fixture is not reachable
 from a remote device or cloud service.
 
@@ -106,14 +97,6 @@ directory with `--output`. JSON records the exact browser version, user agent,
 commit, dirty-checkout flag, fixture bundle SHA-256, completed checks, and errors.
 A mismatch with `--version` fails the run. A green result only supports the
 listed checks on that particular browser/build/platform.
-
-For physical iOS verification, use the hosted demo and integration gallery. Record
-the device model, iOS/Safari version and tested commit; check initial rendering and
-labels, rotation/resize, marker selection/drag/cancellation, pan/pinch interaction,
-SVG/PNG download and opening the saved files, and the React/Angular examples'
-update and unmount/remount controls. Compare framework results against each
-framework's own baseline. Desktop emulation and Playwright WebKit do not close
-this verification item.
 
 ## TypeScript and runtime
 

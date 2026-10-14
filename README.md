@@ -34,8 +34,8 @@ npm install smithkit
 
 Browser applications need SVG, ES2022, and an ESM-compatible build tool.
 The checked TypeScript minimum is 5.7.3. See the
-[browser and framework compatibility baseline](https://github.com/rosek86/smithkit/blob/main/docs/compatibility.md)
-for browser targets and verification coverage.
+[browser and framework compatibility](https://github.com/rosek86/smithkit/blob/main/docs/compatibility.md)
+for tested environments and build targets.
 No library stylesheet is required. To build the library from source, see
 [Contributing](https://github.com/rosek86/smithkit/blob/main/CONTRIBUTING.md).
 
