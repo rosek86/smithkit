@@ -69,7 +69,7 @@ the zoom handler. Input shape alone is not a reliable predictor of rendering cos
 
 ## Optional line simplification — 2026-10-09
 
-`lineTolerancePx` defaults to 0 (full geometry). With a positive tolerance, nested
+`line.tolerancePx` defaults to 0 (full geometry). With a positive tolerance, nested
 radial-distance levels cache ordered sample indices. Each level accounts for the
 accumulated error of earlier levels; selection uses the chart's CSS scale and zoom.
 Panning and zooming within a level do not rewrite the path. Crossing a level rewrites

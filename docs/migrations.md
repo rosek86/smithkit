@@ -5,10 +5,10 @@ new integration, start with the [README](../README.md) and the
 [API documentation](https://rosek86.github.io/smithkit/api/).
 When skipping versions, apply the relevant migrations in version order.
 
-## 0.6.x to the next minor (unreleased)
+## 0.6.x to 0.7.0
 
 Visual styles are grouped by element and chart construction can mount directly
-into a container. Follow the [next minor migration guide](migration-next.md).
+into a container. Follow the [0.7 migration guide](migration-0.7.md).
 
 ## 0.4.x to 0.5.0
 

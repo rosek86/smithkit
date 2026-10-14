@@ -1,6 +1,6 @@
-# Migration from 0.6.x to the next minor
+# Migration from 0.6.x to 0.7.0
 
-These changes are unreleased and require a minor version during 0.x development.
+Version 0.7.0 changes the visual configuration schema.
 The old flat visual style keys are removed; they are not compatibility aliases.
 Default appearance, interaction, grid detail, and trace behavior remain unchanged.
 
@@ -29,6 +29,32 @@ Use `GridStyleOptions` / `CircleStyleOptions` for partial patches instead of
 `Partial<GridStyle>` / `Partial<CircleStyle>`. Patches merge individual nested
 properties; for example, changing `text.color` preserves the font and line style.
 Unknown keys and invalid nested values are rejected before changing the chart.
+
+## Trace styles
+
+| Previous trace key | New trace key      |
+| ------------------ | ------------------ |
+| `lineWidth`        | `line.width`       |
+| `lineTolerancePx`  | `line.tolerancePx` |
+| `pointRadius`      | `point.radius`     |
+
+The new shape applies to `addTrace()`, `setTraceOptions()`, and `getTraces()`:
+
+```ts
+const traceId = chart.addTrace(samples, {
+  mode: 'both',
+  line: { width: 2, tolerancePx: 0.5 },
+  point: { radius: 3 },
+});
+chart.setTraceOptions(traceId, { line: { width: 4 } });
+// The tolerance and point radius are preserved.
+console.log(chart.getTraces()[0].line.width);
+```
+
+Use `TraceStyleOptions` for partial style patches rather than `Partial<TraceStyle>`.
+Snapshots have readonly, detached `line` and `point` objects. Unknown keys and
+invalid nested values throw before changing the trace. Defaults remain points,
+2 px line width, 2 px point radius, and no line simplification.
 
 ## Theme overrides
 
@@ -70,3 +96,13 @@ The first argument is a CSS selector or an `HTMLElement`. It is optional: existi
 `new Smith(options)` followed by `draw(target)` still works. Data and markers are
 added through the existing methods. The target is separate from configuration so
 `setOptions()` keeps the chart in its current container.
+
+`SmithScales` supports the same optional mounting argument, followed by its
+independent appearance configuration:
+
+```ts
+const scales = new SmithScales('#scales', { theme: 'dark' });
+```
+
+`new SmithScales(appearance)` followed by `draw(target)` remains available.
+Scales do not inherit chart settings or subscribe to chart events automatically.

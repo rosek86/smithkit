@@ -1,5 +1,5 @@
 import { SmithGroup } from '../svg/SmithGroup.js';
-import type { TraceStyle, MarkerSelectionStrategy } from '../measurements.js';
+import type { TraceStyle, TraceStyleOptions, MarkerSelectionStrategy } from '../measurements.js';
 import { SmithMarker } from './SmithMarker.js';
 import { SmithScaler } from '../svg/SmithScaler.js';
 import type { TraceInput, TraceSample } from '../samples.js';
@@ -28,7 +28,7 @@ export class SmithData {
     private scaler: SmithScaler,
     private markerDragHandler?: (marker: SmithMarker, dragging: boolean) => void,
     private markerContainer: SmithGroup = container,
-    style: Partial<TraceStyle> = {},
+    style: TraceStyleOptions = {},
   ) {
     this.model = new TraceModel(data);
     this.renderer = new TraceRenderer(
@@ -148,7 +148,7 @@ export class SmithData {
     return this.renderer.Style;
   }
 
-  public setStyle(options: Partial<TraceStyle>): void {
+  public setStyle(options: TraceStyleOptions): void {
     this.renderer.setStyle(options);
   }
 

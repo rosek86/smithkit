@@ -1,4 +1,5 @@
 import { ImageExporter } from '../svg/ImageExporter.js';
+import { ChartHost } from '../rendering/ChartHost.js';
 import type { ScaleImageExportOptions } from '../svg/export.js';
 import { Theme } from '../appearance/Theme.js';
 import { SvgTheme } from '../appearance/SvgTheme.js';
@@ -32,7 +33,27 @@ export class SmithScales {
     .style('width', '100%')
     .style('height', 'auto');
 
-  public constructor(appearance: SmithAppearance = {}) {
+  /** Configure independent scales for later mounting with draw(). */
+  public constructor(appearance?: SmithAppearance);
+  /** Configure and mount immediately. String targets are CSS selectors, as in draw(). */
+  public constructor(target: string | HTMLElement, appearance?: SmithAppearance);
+  public constructor(
+    targetOrAppearance: string | HTMLElement | SmithAppearance = {},
+    configuration?: SmithAppearance,
+  ) {
+    const target =
+      typeof targetOrAppearance === 'string' || ChartHost.isElement(targetOrAppearance)
+        ? targetOrAppearance
+        : undefined;
+    if (target === undefined && configuration !== undefined) {
+      throw new TypeError('A container is required before the second appearance argument.');
+    }
+    const appearance =
+      target === undefined
+        ? (targetOrAppearance as SmithAppearance)
+        : configuration === undefined
+          ? {}
+          : configuration;
     this.setAppearance(appearance);
     const labels = this.axes.append('g').attr('data-role', 'labels').attr('pointer-events', 'none');
     labels
@@ -105,6 +126,14 @@ export class SmithScales {
       .attr('stroke-width', 1);
     labels.raise();
     this.axes.append('title').text((scale) => scale.description ?? scale.title);
+    if (target !== undefined) {
+      try {
+        this.draw(target);
+      } catch (error) {
+        this.destroy();
+        throw error;
+      }
+    }
   }
 
   /** Replace the preset and overrides without changing readings or layout. */

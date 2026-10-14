@@ -1,4 +1,5 @@
 import { OptionsValidation } from './OptionsValidation.js';
+import { ChartHost } from './rendering/ChartHost.js';
 import type { SmithOptions } from './options.js';
 import { MarkerLegend } from './svg/MarkerLegend.js';
 import { ImageExporter } from './svg/ImageExporter.js';
@@ -71,7 +72,7 @@ export class Smith {
     configuration?: SmithOptions,
   ) {
     const target =
-      typeof targetOrOptions === 'string' || Smith.isHost(targetOrOptions)
+      typeof targetOrOptions === 'string' || ChartHost.isElement(targetOrOptions)
         ? targetOrOptions
         : undefined;
     if (target === undefined && configuration !== undefined) {
@@ -109,18 +110,6 @@ export class Smith {
       this.renderer.destroy();
       throw error;
     }
-  }
-
-  private static isHost(value: unknown): value is HTMLElement {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-    if (typeof HTMLElement !== 'undefined' && value instanceof HTMLElement) {
-      return true;
-    }
-    // Accept elements from another window without requiring that window's globals.
-    const elementType = (value as HTMLElement).ownerDocument?.defaultView?.HTMLElement;
-    return elementType !== undefined && value instanceof elementType;
   }
 
   /** Apply a validated patch. Omitted fields retain their current settings. */
@@ -379,17 +368,33 @@ export class Smith {
   }
 
   private validateTraceOptions(options: TraceOptions): void {
+    OptionsValidation.object(options, 'Trace', [
+      'mode',
+      'line',
+      'point',
+      'name',
+      'color',
+      'visible',
+    ]);
+    if (options.line !== undefined) {
+      OptionsValidation.object(options.line, 'Trace line', ['width', 'tolerancePx']);
+    }
+    if (options.point !== undefined) {
+      OptionsValidation.object(options.point, 'Trace point', ['radius']);
+    }
     if (options.mode !== undefined && !['points', 'line', 'both'].includes(options.mode)) {
       throw new TypeError('Trace mode must be points, line, or both.');
     }
     if (
-      options.lineTolerancePx !== undefined &&
-      (!Number.isFinite(options.lineTolerancePx) || options.lineTolerancePx < 0)
+      options.line?.tolerancePx !== undefined &&
+      (!Number.isFinite(options.line.tolerancePx) || options.line.tolerancePx < 0)
     ) {
       throw new RangeError('Line tolerance must be finite and non-negative.');
     }
-    for (const key of ['lineWidth', 'pointRadius'] as const) {
-      const value = options[key];
+    for (const [key, value] of [
+      ['line.width', options.line?.width],
+      ['point.radius', options.point?.radius],
+    ] as const) {
       if (value !== undefined && (!Number.isFinite(value) || value <= 0)) {
         throw new RangeError(`${key} must be positive and finite.`);
       }

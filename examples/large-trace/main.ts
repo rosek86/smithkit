@@ -21,7 +21,7 @@ chart.draw('#chart');
 const traceId = chart.addTrace(createSamples(count), {
   name: 'Synthetic sweep',
   mode: 'line',
-  lineTolerancePx: 0.5,
+  line: { tolerancePx: 0.5 },
 });
 const markerId = chart.addMarker(traceId)!;
 const slider = document.querySelector<HTMLInputElement>('#sample')!;
@@ -47,7 +47,7 @@ renderReading();
 
 const detail = document.querySelector<HTMLSelectElement>('#line-detail')!;
 detail.addEventListener('change', () => {
-  chart.setTraceOptions(traceId, { lineTolerancePx: Number(detail.value) });
+  chart.setTraceOptions(traceId, { line: { tolerancePx: Number(detail.value) } });
 });
 
 const sampleCount = document.querySelector<HTMLSelectElement>('#sample-count')!;

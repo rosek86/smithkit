@@ -353,7 +353,7 @@ test('traces share the current view when created before mounting or after zoom a
     const samples: import('../../src').TraceSamples = [
       { frequencyHz: 1e9, reflectionCoefficient: [0.25, 0.1] },
     ];
-    chart.addMarker(chart.addTrace(samples, { pointRadius: 3 }));
+    chart.addMarker(chart.addTrace(samples, { point: { radius: 3 } }));
     document.getElementById('first')!.style.width = '320px';
     chart.draw('#first');
     const svg = document.querySelector('#first svg')!;
@@ -369,7 +369,7 @@ test('traces share the current view when created before mounting or after zoom a
       }),
     );
     const zoomed = view.getAttribute('transform') !== initial;
-    chart.addMarker(chart.addTrace(samples, { pointRadius: 3 }));
+    chart.addMarker(chart.addTrace(samples, { point: { radius: 3 } }));
     const sizes = () =>
       [...svg.querySelectorAll('[data-role=samples] circle, .marker-hit-area')].map((node) => {
         // Firefox expands/quantizes screen bounds, even for invisible SVG circles.
@@ -387,7 +387,7 @@ test('traces share the current view when created before mounting or after zoom a
     const sameView = view.getAttribute('transform');
     chart.clearTraces();
     const emptied = svg.querySelectorAll('[data-role=samples], [data-role=marker]').length;
-    chart.addMarker(chart.addTrace(samples, { pointRadius: 3 }));
+    chart.addMarker(chart.addTrace(samples, { point: { radius: 3 } }));
     const afterClear = sizes();
     const viewPreserved = view.getAttribute('transform') === sameView;
     chart.resetView();

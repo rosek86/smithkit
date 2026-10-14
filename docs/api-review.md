@@ -1,6 +1,6 @@
 # Public API review and compatibility policy
 
-Reviewed against **0.6.0 and the next minor API changes**, including grouped visual styles, optional constructor mounting, compact trace input, line simplification, and Touchstone reflection I/O,
+Reviewed against **0.7.0**, including grouped visual styles, optional constructor mounting, compact trace input, line simplification, and Touchstone reflection I/O,
 including the installed integration examples and the subsequent React/Angular
 lifecycle verification. Version 0.3.0 used positional constructor arguments,
 interactive defaults, and an automatic marker. See [migration to 0.4](migration-0.4.md).
@@ -112,8 +112,9 @@ arbitrary side effects from application callbacks.
   hides geometry, cancels queued readings, and clears the readout. Enabling waits
   for a new pointer movement. `cursorReading` retains the last position.
 
-`SmithScales` is a separate component whose constructor takes only
-`SmithAppearance`. It does not inherit chart options or listen to chart events
+`SmithScales` is a separate component configured with `SmithAppearance`.
+Like `Smith`, it optionally accepts a CSS selector or `HTMLElement` first for
+immediate mounting. It does not inherit chart options or listen to chart events
 implicitly. Consumers select the source reading with `update(Complex | null)`.
 Keeping this constructor focused avoids grid/interaction options that do not apply.
 
@@ -310,7 +311,7 @@ block 1.0; future additions must respect the public boundary above.
 
 ## Trace display accuracy
 
-`TraceOptions.lineTolerancePx` is a per-trace display setting, shared by `addTrace()`
+`TraceOptions.line.tolerancePx` is a per-trace display setting, shared by `addTrace()`
 and `setTraceOptions()`, and reported in `TraceInfo`. Its default is zero, retaining
 full line geometry. Finite non-negative CSS pixel values bound additional geometric
 deviation; invalid values throw `RangeError` before mutation. It never changes

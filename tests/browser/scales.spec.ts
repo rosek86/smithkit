@@ -1,6 +1,72 @@
 import { expect, test } from '@playwright/test';
 import { loadLibrary } from './library';
 
+test('scales mount from constructor selectors or elements and retain deferred mounting', async ({
+  page,
+}) => {
+  await page.setContent('<div id="scales" style="width:650px"></div>');
+  await loadLibrary(page);
+  const result = await page.evaluate(() => {
+    const { SmithScales, Complex } = window.SmithTest;
+    const host = document.querySelector<HTMLElement>('#scales')!;
+    const first = new SmithScales('#scales', { theme: 'dark' });
+    first.update(Complex.from(0.5, 0));
+    const count = host.querySelectorAll('svg').length;
+    const color = getComputedStyle(host.querySelector('text')!).fill;
+    const exported = first.toSvg().includes('<svg');
+    first.destroy();
+    const element = new SmithScales(host);
+    const elementCount = host.querySelectorAll('svg').length;
+    element.destroy();
+    const deferred = new SmithScales({ theme: 'light' });
+    const beforeDraw = host.childElementCount;
+    deferred.draw(host);
+    const deferredCount = host.querySelectorAll('svg').length;
+    deferred.destroy();
+    const frame = document.createElement('iframe');
+    document.body.append(frame);
+    const otherWindow = new SmithScales(frame.contentDocument!.body);
+    const frameCount = frame.contentDocument!.querySelectorAll('svg').length;
+    otherWindow.destroy();
+    frame.remove();
+    let failures = 0;
+    for (const target of ['#missing', '[']) {
+      try {
+        new SmithScales(target);
+      } catch {
+        failures++;
+      }
+    }
+    try {
+      new SmithScales('#scales', { overrides: { scales: { text: { fontSize: -1 } } } });
+    } catch {
+      failures++;
+    }
+    return {
+      count,
+      elementCount,
+      deferredCount,
+      frameCount,
+      beforeDraw,
+      color,
+      exported,
+      failures,
+      remaining: host.childElementCount,
+    };
+  });
+  expect(result.count).toBeGreaterThan(0);
+  expect(result.elementCount).toBe(result.count);
+  expect(result.deferredCount).toBe(result.count);
+  expect(result.frameCount).toBe(result.count);
+  expect(result).toMatchObject({
+    beforeDraw: 0,
+    color: 'rgb(226, 232, 240)',
+    exported: true,
+    failures: 3,
+    remaining: 0,
+  });
+});
+
 test('peripheral indicators share marker selection and follow chart zoom', async ({ page }) => {
   await page.goto('./');
   const rings = page.locator('#smith [data-layer=peripheral-scales]');

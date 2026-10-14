@@ -607,6 +607,7 @@ export interface SmithReading {
 // @public
 export class SmithScales {
     constructor(appearance?: SmithAppearance);
+    constructor(target: string | HTMLElement, appearance?: SmithAppearance);
     // (undocumented)
     destroy(): void;
     // (undocumented)
@@ -764,9 +765,13 @@ export interface TraceInfo extends Readonly<TraceStyle> {
     // (undocumented)
     readonly id: string;
     // (undocumented)
+    readonly line: Readonly<TraceStyle['line']>;
+    // (undocumented)
     readonly markers: readonly MarkerInfo[];
     // (undocumented)
     readonly name: string;
+    // (undocumented)
+    readonly point: Readonly<TraceStyle['point']>;
     // (undocumented)
     readonly sampleCount: number;
     // (undocumented)
@@ -777,7 +782,7 @@ export interface TraceInfo extends Readonly<TraceStyle> {
 export type TraceInput = TraceSamples | readonly TraceTuple[] | Float64Array;
 
 // @public (undocumented)
-export interface TraceOptions extends Partial<TraceStyle> {
+export interface TraceOptions extends TraceStyleOptions {
     color?: string;
     // (undocumented)
     name?: string;
@@ -801,11 +806,27 @@ export type TraceSamples = readonly TraceSample[];
 
 // @public (undocumented)
 export interface TraceStyle {
-    lineTolerancePx: number;
-    lineWidth: number;
+    // (undocumented)
+    line: {
+        width: number;
+        tolerancePx: number;
+    };
     // (undocumented)
     mode: TraceRenderMode;
-    pointRadius: number;
+    // (undocumented)
+    point: {
+        radius: number;
+    };
+}
+
+// @public
+export interface TraceStyleOptions {
+    // (undocumented)
+    line?: Partial<TraceStyle['line']>;
+    // (undocumented)
+    mode?: TraceRenderMode;
+    // (undocumented)
+    point?: Partial<TraceStyle['point']>;
 }
 
 // @public

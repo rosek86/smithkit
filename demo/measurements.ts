@@ -174,24 +174,24 @@ export class Measurements {
     });
     modeLabel.append(mode);
     appearance.append(modeLabel);
-    for (const [key, caption] of [
-      ['lineWidth', 'Line width (px)'],
-      ['pointRadius', 'Point radius (px)'],
-      ['lineTolerancePx', 'Line tolerance (px, 0 = full)'],
+    for (const [group, key, caption, current] of [
+      ['line', 'width', 'Line width (px)', trace.line.width],
+      ['point', 'radius', 'Point radius (px)', trace.point.radius],
+      ['line', 'tolerancePx', 'Line tolerance (px, 0 = full)', trace.line.tolerancePx],
     ] as const) {
       const label = document.createElement('label');
       label.textContent = caption + ' ';
       const input = document.createElement('input');
       input.type = 'number';
-      input.min = key === 'lineTolerancePx' ? '0' : '0.1';
+      input.min = key === 'tolerancePx' ? '0' : '0.1';
       input.step = 'any';
-      input.value = String(trace[key]);
+      input.value = String(current);
       input.addEventListener('change', () => {
         if (!input.value || !input.checkValidity() || !Number.isFinite(Number(input.value))) {
-          input.value = String(trace[key]);
+          input.value = String(current);
           return;
         }
-        this.smith.setTraceOptions(trace.id, { [key]: Number(input.value) });
+        this.smith.setTraceOptions(trace.id, { [group]: { [key]: Number(input.value) } });
         this.changed();
       });
       label.append(input);

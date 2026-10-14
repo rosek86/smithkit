@@ -20,7 +20,7 @@ test('line detail adapts to zoom, keeps full marker data and exports full or vie
     const path = () => document.querySelector('.trace-line')!.getAttribute('d')!;
     const vertices = (d: string) => d.match(/[ML]/g)!.length;
     const full = path();
-    chart.setTraceOptions(id, { lineTolerancePx: 1 });
+    chart.setTraceOptions(id, { line: { tolerancePx: 1 } });
     const simplified = path();
     const marker = chart.addMarker(id)!;
     chart.setMarkerSample(marker, 8765);
@@ -92,7 +92,7 @@ test('resize, mode changes and renormalization refresh detail; invalid options a
       { length: 10_000 },
       (_, i) => [i, 0.8 * Math.cos(i / 2000), 0.8 * Math.sin(i / 2000)] as const,
     );
-    const id = chart.addTrace(samples, { mode: 'line', lineTolerancePx: 0.5 });
+    const id = chart.addTrace(samples, { mode: 'line', line: { tolerancePx: 0.5 } });
     const path = () => document.querySelector('.trace-line')!.getAttribute('d')!;
     const vertices = () => path().match(/[ML]/g)!.length;
     const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
@@ -109,7 +109,7 @@ test('resize, mode changes and renormalization refresh detail; invalid options a
     let rejected = 0;
     for (const lineTolerancePx of [-1, NaN, Infinity]) {
       try {
-        chart.setTraceOptions(id, { lineTolerancePx, mode: 'points' });
+        chart.setTraceOptions(id, { line: { tolerancePx: lineTolerancePx }, mode: 'points' });
       } catch (error) {
         if (error instanceof RangeError) {
           rejected++;
@@ -137,9 +137,9 @@ test('resize, mode changes and renormalization refresh detail; invalid options a
     chart.renormalize(75);
     const changed = path() !== before;
     const normalized = path();
-    chart.setTraceOptions(id, { lineTolerancePx: 0 });
+    chart.setTraceOptions(id, { line: { tolerancePx: 0 } });
     const full = vertices();
-    chart.setTraceOptions(id, { lineTolerancePx: 0.5 });
+    chart.setTraceOptions(id, { line: { tolerancePx: 0.5 } });
     const restored = path() === normalized;
     const png = await chart.toPng({ lineDetail: 'view', width: 300 });
     const afterPng = path() === normalized;
