@@ -1,0 +1,186 @@
+name: Verify Smithkit
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: ''
+      release-tag:
+        type: string
+        default: ''
+      package-artifact:
+        type: string
+        required: true
+      upload-pages:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Record the exact source commit
+        id: source
+        run: |
+          test -z "$(git status --porcelain)"
+          echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Verify release version
+        if: inputs.release-tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release-tag }}
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const p = JSON.parse(fs.readFileSync('package.json')); assert.equal(process.env.RELEASE_TAG, 'v' + p.version); assert.match(p.version, /^\d+\.\d+\.\d+$/);"
+      - run: npm ci
+      - run: npm run check
+      - name: Pack the candidate once
+        run: |
+          mkdir -p artifacts
+          npm pack --ignore-scripts --pack-destination artifacts
+          test -z "$(git status --porcelain)"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: verification-build
+          path: |
+            dist/
+            artifacts/*.tgz
+          if-no-files-found: error
+          retention-days: 1
+
+  browsers:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit, firefox]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.build.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: verification-build
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Test the built demo
+        run: npx playwright test --browser=${{ matrix.browser }} --workers=2
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: browser-test-results-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 7
+
+  consumers:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.build.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: verification-build
+      - run: npx playwright install --with-deps chromium webkit firefox
+      - name: Check the packed library
+        run: npm run check:package -- artifacts/*.tgz
+      - name: Check standalone consumers in all three browsers
+        run: npm run check:example -- artifacts/*.tgz
+      - name: Require unchanged source
+        run: test -z "$(git status --porcelain)"
+
+  complete:
+    needs: [build, browsers, consumers]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require all verification jobs to pass
+        env:
+          BUILD_RESULT: ${{ needs.build.result }}
+          BROWSER_RESULT: ${{ needs.browsers.result }}
+          CONSUMER_RESULT: ${{ needs.consumers.result }}
+        run: |
+          test "$BUILD_RESULT" = success
+          test "$BROWSER_RESULT" = success
+          test "$CONSUMER_RESULT" = success
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.build.outputs.commit }}
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/download-artifact@v8
+        with:
+          name: verification-build
+      # Keep this self-contained so a dispatch can still verify older release tags.
+      - name: Record the verified archive
+        env:
+          VERIFIED_COMMIT: ${{ needs.build.outputs.commit }}
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { execFileSync } from 'node:child_process';
+          import { createHash } from 'node:crypto';
+          import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+          const manifest = JSON.parse(readFileSync('package.json', 'utf8'));
+          assert.equal(manifest.name, 'smithkit');
+          assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
+          const archives = readdirSync('artifacts').filter(name => name.endsWith('.tgz'));
+          assert.deepEqual(archives, [`smithkit-${manifest.version}.tgz`]);
+          const archive = `artifacts/${archives[0]}`;
+          const [packed] = JSON.parse(execFileSync('npm', ['pack', archive, '--dry-run', '--ignore-scripts', '--json'], { encoding: 'utf8' }));
+          assert.equal(packed.name, manifest.name);
+          assert.equal(packed.version, manifest.version);
+          const bytes = readFileSync(archive);
+          const integrity = `sha512-${createHash('sha512').update(bytes).digest('base64')}`;
+          assert.equal(packed.integrity, integrity);
+          const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+          assert.equal(commit, process.env.VERIFIED_COMMIT);
+          assert.equal(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(), '');
+          const report = {
+            name: packed.name, version: packed.version, commit, archive: archives[0],
+            sha256: createHash('sha256').update(bytes).digest('hex'), integrity,
+            size: bytes.length, unpackedSize: packed.unpackedSize,
+            verified: ['source', 'chromium', 'webkit', 'firefox', 'package-consumer', 'standalone-example'],
+          };
+          writeFileSync('artifacts/release-manifest.json', JSON.stringify(report, null, 2) + '\n');
+          JS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ inputs.package-artifact }}
+          path: artifacts/
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@v5
+        if: inputs.upload-pages
+        with:
+          path: dist/demo/

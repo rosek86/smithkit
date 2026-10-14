@@ -10,13 +10,18 @@ GitHub Pages serves the built demo from `dist/demo/`, not the source files on `m
 
 A push to `main` runs `.github/workflows/ci.yml`:
 
-1. Install dependencies and Chromium/Firefox/WebKit.
-2. Run `npm run prepare:release` to check the source, build the library and demo,
-   test all three browsers, and verify the packed library and standalone consumer.
-3. Upload `dist/demo/` as the `github-pages` artifact.
-4. Deploy that exact artifact with `actions/deploy-pages` after checks pass.
+1. Call `.github/workflows/verify.yml` to run source checks, build the library and
+   demo, and pack one candidate archive.
+2. Download that same build in parallel jobs: Chromium, WebKit, Firefox, and
+   package/standalone-consumer verification. All jobs check out the recorded commit.
+3. Require every verification job to succeed, then create the release manifest
+   and upload `dist/demo/` as the `github-pages` artifact.
+4. Require the top-level `check` gate, then deploy that exact artifact with
+   `actions/deploy-pages`.
 
-Pull requests run the same checks and upload artifacts without deploying.
+Pull requests run the same checks and upload artifacts without deploying. A new
+push cancels older runs of that PR so obsolete checks do not hold up the latest
+revision. Runs on `main` and release publication are not automatically cancelled.
 You can also select **Actions → Check and publish Smith chart → Run workflow**
 on `main` to retry a deployment. Runs on other branches cannot deploy.
 Preparing a release archive does not publish the npm package.
